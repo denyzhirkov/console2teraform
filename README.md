@@ -63,4 +63,22 @@ A project for scanning existing AWS infrastructure and generating Terraform code
 
 ## Requirements
 - Node.js 18+
-- AWS credentials with read permissions for the resources you want to scan 
+- AWS credentials with read permissions for the resources you want to scan
+
+## Using AWS SSO with Account Selection
+
+If your organization uses AWS SSO and you select an account and role via a web interface (the "start" page), you must first configure SSO profiles via the AWS CLI for this CLI application to work:
+
+1. Install AWS CLI v2.
+2. Run:
+   ```sh
+   aws configure sso
+   ```
+3. Follow the wizard instructions:
+   - Enter your SSO Start URL (portal link).
+   - Select your SSO Region.
+   - Log in via your browser.
+   - When prompted to select accounts and roles, choose **all available accounts and roles**.
+   - The CLI will create a separate profile in `~/.aws/config` for each account/role.
+
+After this, when you start the application, you will be able to select the desired profile to work with the corresponding AWS account and role. 
