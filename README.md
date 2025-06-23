@@ -1,0 +1,66 @@
+# console2terraform
+
+A project for scanning existing AWS infrastructure and generating Terraform code.
+
+## Quick Start
+
+1. Install dependencies:
+   ```
+   npm install
+   ```
+2. Set up your AWS credentials (via environment variables or AWS profile).
+3. Run the project:
+   ```
+   npx ts-node src/index.ts
+   ```
+
+## Structure
+- `src/awsConnector.ts` — AWS connection logic
+- `src/resourceScanner/` — Modular AWS resources scanning (each resource in its own file, aggregated via `index.ts`)
+- `src/resourceMapper/` — Modular mapping AWS data to Terraform structures (each resource in its own file, aggregated via `index.ts`)
+- `src/terraformGenerator.ts` — main.tf, provider.tf, variables.tf, outputs.tf generation via EJS templates
+- `src/index.ts` — CLI entry point
+- `templates/` — EJS templates for Terraform code
+
+## Supported AWS Resources
+- **VPC** (`aws_vpc`)
+- **Subnet** (`aws_subnet`)
+- **Internet Gateway** (`aws_internet_gateway`)
+- **Route Table** (`aws_route_table`, `aws_route_table_association`)
+- **Security Group** (`aws_security_group`)
+- **EC2 Instance** (`aws_instance`)
+- **S3 Bucket** (`aws_s3_bucket`)
+- **ECS (partial):**
+  - **Cluster** (`aws_ecs_cluster`)
+  - **Task Definition** (`aws_ecs_task_definition`)
+  - **Service** (`aws_ecs_service`)
+- **Application Load Balancer (ALB):**
+  - **Load Balancer** (`aws_lb`)
+  - **Target Group** (`aws_lb_target_group`)
+  - **Listener** (`aws_lb_listener`)
+
+## CLI Features
+- Scans all supported AWS resources in your account/region.
+- Interactive selection of which resource types to include in generated Terraform code.
+- Generates the following files:
+  - `main.tf` — main Terraform resources
+  - `provider.tf` — provider configuration
+  - `variables.tf` — input variables
+  - `outputs.tf` — outputs for all generated resources
+
+## How it works
+1. CLI connects to AWS and scans all supported resources.
+2. User selects which resource types to include.
+3. Data is mapped to Terraform resource structures.
+4. EJS templates generate Terraform files in the project root.
+
+## Extending
+- To add support for a new AWS resource:
+  1. Add a scanner in `src/resourceScanner/`.
+  2. Add a mapper in `src/resourceMapper/`.
+  3. Add EJS templates if needed in `templates/`.
+  4. Update CLI logic in `src/index.ts` to include the new resource.
+
+## Requirements
+- Node.js 18+
+- AWS credentials with read permissions for the resources you want to scan 

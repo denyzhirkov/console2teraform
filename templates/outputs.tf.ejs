@@ -1,0 +1,116 @@
+<% if (vpcs && vpcs.length) { %>
+<% vpcs.forEach(function(vpc) { %>
+output "<%= vpc.resourceName %>_vpc_id" {
+  description = "ID of VPC <%= vpc.resourceName %>"
+  value       = aws_vpc.<%= vpc.resourceName %>.id
+}
+<% }) %>
+<% } %>
+
+<% if (igws && igws.length) { %>
+<% igws.forEach(function(igw) { %>
+output "<%= igw.resourceName %>_igw_id" {
+  description = "ID of Internet Gateway <%= igw.resourceName %>"
+  value       = aws_internet_gateway.<%= igw.resourceName %>.id
+}
+<% }) %>
+<% } %>
+
+<% if (routeTables && routeTables.length) { %>
+<% routeTables.forEach(function(rt) { %>
+output "<%= rt.resourceName %>_rt_id" {
+  description = "ID of Route Table <%= rt.resourceName %>"
+  value       = aws_route_table.<%= rt.resourceName %>.id
+}
+<% }) %>
+<% } %>
+
+<% if (subnets && subnets.length) { %>
+<% subnets.forEach(function(subnet) { %>
+output "<%= subnet.resourceName %>_subnet_id" {
+  description = "ID of Subnet <%= subnet.resourceName %>"
+  value       = aws_subnet.<%= subnet.resourceName %>.id
+}
+<% }) %>
+<% } %>
+
+<% if (ec2 && ec2.length) { %>
+<% ec2.forEach(function(instance) { %>
+output "<%= instance.resourceName %>_id" {
+  description = "ID of EC2 instance <%= instance.resourceName %>"
+  value       = aws_instance.<%= instance.resourceName %>.id
+}
+<% }) %>
+<% } %>
+
+<% if (s3 && s3.length) { %>
+<% s3.forEach(function(bucket) { %>
+output "<%= bucket.resourceName %>_bucket" {
+  description = "Name of S3 bucket <%= bucket.resourceName %>"
+  value       = aws_s3_bucket.<%= bucket.resourceName %>.bucket
+}
+<% }) %>
+<% } %>
+
+<% if (securityGroups && securityGroups.length) { %>
+<% securityGroups.forEach(function(sg) { %>
+output "<%= sg.resourceName %>_sg_id" {
+  description = "ID of Security Group <%= sg.resourceName %>"
+  value       = aws_security_group.<%= sg.resourceName %>.id
+}
+<% }) %>
+<% } %>
+
+<% if (ecsClusters && ecsClusters.length) { %>
+<% ecsClusters.forEach(function(cluster) { %>
+output "<%= cluster.resourceName %>_ecs_cluster_id" {
+  description = "ID of ECS Cluster <%= cluster.resourceName %>"
+  value       = aws_ecs_cluster.<%= cluster.resourceName %>.id
+}
+<% }) %>
+<% } %>
+
+<% if (ecsTaskDefs && ecsTaskDefs.length) { %>
+<% ecsTaskDefs.forEach(function(td) { %>
+output "<%= td.resourceName %>_ecs_taskdef_arn" {
+  description = "ARN of ECS Task Definition <%= td.resourceName %>"
+  value       = aws_ecs_task_definition.<%= td.resourceName %>.arn
+}
+<% }) %>
+<% } %>
+
+<% if (ecsServices && ecsServices.length) { %>
+<% ecsServices.forEach(function(svc) { %>
+output "<%= svc.resourceName %>_ecs_service_id" {
+  description = "ID of ECS Service <%= svc.resourceName %>"
+  value       = aws_ecs_service.<%= svc.resourceName %>.id
+}
+<% }) %>
+<% } %>
+
+<% if (albs && albs.length) { %>
+<% albs.forEach(function(alb) { %>
+output "<%= alb.resourceName %>_dns_name" {
+  value = aws_lb.<%= alb.resourceName %>.dns_name
+}
+output "<%= alb.resourceName %>_arn" {
+  value = aws_lb.<%= alb.resourceName %>.arn
+}
+<% }) %>
+<% } %>
+
+<% if (albTargetGroups && albTargetGroups.length) { %>
+<% albTargetGroups.forEach(function(tg) { %>
+output "<%= tg.resourceName %>_arn" {
+  value = aws_lb_target_group.<%= tg.resourceName %>.arn
+}
+<% }) %>
+<% } %>
+
+<% if (albListeners && albListeners.length) { %>
+<% albListeners.forEach(function(listener) { %>
+output "<%= listener.resourceName %>_arn" {
+  value = aws_lb_listener.<%= listener.resourceName %>.arn
+}
+<% }) %>
+<% } %> 
