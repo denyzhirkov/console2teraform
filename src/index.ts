@@ -5,9 +5,39 @@ import { generateTerraform, generateProviderTf, generateVariablesTf, generateOut
 import inquirer from "inquirer";
 import fs from "fs";
 import path from "path";
+import os from "os";
+import ini from "ini";
+
+async function selectAwsProfile(): Promise<string> {
+  const configPath = path.join(os.homedir(), ".aws/config");
+  let profiles: string[] = [];
+  if (fs.existsSync(configPath)) {
+    const config = ini.parse(fs.readFileSync(configPath, "utf-8"));
+    profiles = Object.keys(config)
+      .map((section) => section.replace(/^profile /, ""))
+      .filter((name) => !!name);
+  }
+  if (profiles.length === 0) {
+    throw new Error("No AWS profiles found in ~/.aws/config. Please configure AWS CLI first.");
+  }
+  const { selectedProfile } = await inquirer.prompt([
+    {
+      type: "list",
+      name: "selectedProfile",
+      message: "Select AWS profile to use:",
+      choices: profiles,
+    },
+  ]);
+  return selectedProfile;
+}
 
 async function main() {
   try {
+    // AWS PROFILE SELECTION
+    const selectedProfile = await selectAwsProfile();
+    process.env.AWS_PROFILE = selectedProfile;
+    console.log(`Using AWS profile: ${selectedProfile}`);
+
     // Check AWS connection
     const identity = await checkConnection();
     console.log(identity);
