@@ -1,0 +1,10 @@
+<% if (igws && igws.length) { %>
+<% igws.forEach(function(igw) { %>
+resource "aws_internet_gateway" "<%= igw.resourceName %>" {
+<% if (igw.vpcId) { %>  vpc_id = "<%= igw.vpcId %>"
+<% } %><% if (igw.tags) { %>  tags = {
+<% Object.entries(igw.tags).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
+<% }) %>  }
+<% } %>}
+<% }) %>
+<% } %> 

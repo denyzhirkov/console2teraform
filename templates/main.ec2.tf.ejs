@@ -1,0 +1,13 @@
+<% if (ec2 && ec2.length) { %>
+<% ec2.forEach(function(instance) { %>
+resource "aws_instance" "<%= instance.resourceName %>" {
+  ami           = "<%= instance.ami %>"
+  instance_type = "<%= instance.instanceType %>"
+<% if (instance.subnetId) { %>  subnet_id     = "<%= instance.subnetId %>"
+<% } %><% if (instance.securityGroups && instance.securityGroups.length) { %>  vpc_security_group_ids = [<%= instance.securityGroups.map(sg => `"${sg}"`).join(', ') %>]
+<% } %><% if (instance.tags) { %>  tags = {
+<% Object.entries(instance.tags).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
+<% }) %>  }
+<% } %>}
+<% }) %>
+<% } %> 

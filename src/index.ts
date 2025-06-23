@@ -3,6 +3,8 @@ import { scanEC2, scanS3, scanSecurityGroups, scanVPCs, scanSubnets, scanInterne
 import { mapEC2ToTerraform, mapS3ToTerraform, mapSecurityGroupsToTerraform, mapVPCsToTerraform, mapSubnetsToTerraform, mapIGWsToTerraform, mapRouteTablesToTerraform, mapECSClustersToTerraform, mapECSServicesToTerraform, mapECSTaskDefinitionsToTerraform, mapALBsToTerraform, mapALBListenersToTerraform, mapALBTargetGroupsToTerraform } from "./resourceMapper";
 import { generateTerraform, generateProviderTf, generateVariablesTf, generateOutputsTf } from "./terraformGenerator";
 import inquirer from "inquirer";
+import fs from "fs";
+import path from "path";
 
 async function main() {
   try {
@@ -108,6 +110,12 @@ async function main() {
     const tfALBs = selectedTypes.includes("albs") ? mapALBsToTerraform(albs) : [];
     const tfALBListeners = selectedTypes.includes("albListeners") ? mapALBListenersToTerraform(albListeners) : [];
     const tfALBTargetGroups = selectedTypes.includes("albTargetGroups") ? mapALBTargetGroupsToTerraform(albTargetGroups) : [];
+
+    // Ensure terraform directory exists
+    const tfDir = path.join(__dirname, "../terraform");
+    if (!fs.existsSync(tfDir)) {
+      fs.mkdirSync(tfDir);
+    }
 
     // Generate main.tf
     await generateTerraform(tfEC2, tfS3, tfSG, tfVPCs, tfSubnets, tfIGWs, tfRouteTables, tfECSClusters, tfECSServices, tfECSTaskDefs, tfALBs, tfALBListeners, tfALBTargetGroups);

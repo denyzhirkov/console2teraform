@@ -1,0 +1,26 @@
+<% if (securityGroups && securityGroups.length) { %>
+<% securityGroups.forEach(function(sg) { %>
+resource "aws_security_group" "<%= sg.resourceName %>" {
+  description = "<%= sg.description %>"
+<% if (sg.vpcId) { %>  vpc_id = "<%= sg.vpcId %>"
+<% } %>
+<% (sg.ingress || []).forEach(function(rule) { %>
+  ingress {
+    from_port   = <%= rule.FromPort %>
+    to_port     = <%= rule.ToPort %>
+    protocol    = "<%= rule.IpProtocol %>"
+    cidr_blocks = [<%=(rule.IpRanges || []).map(r => `"${r.CidrIp}"`).join(', ') %>]
+  }
+<% }) %>
+<% (sg.egress || []).forEach(function(rule) { %>
+  egress {
+    from_port   = <%= rule.FromPort %>
+    to_port     = <%= rule.ToPort %>
+    protocol    = "<%= rule.IpProtocol %>"
+    cidr_blocks = [<%=(rule.IpRanges || []).map(r => `"${r.CidrIp}"`).join(', ') %>]
+  }
+<% }) %>
+<% if (sg.tags) { %>  tags = <%= JSON.stringify(sg.tags) %>
+<% } %>}
+<% }) %>
+<% } %> 

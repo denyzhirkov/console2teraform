@@ -1,0 +1,10 @@
+<% if (ecsClusters && ecsClusters.length) { %>
+<% ecsClusters.forEach(function(cluster) { %>
+resource "aws_ecs_cluster" "<%= cluster.resourceName %>" {
+  name   = "<%= cluster.resourceName %>"
+<% if (cluster.tags) { %>  tags = {
+<% Object.entries(cluster.tags).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
+<% }) %>  }
+<% } %>}
+<% }) %>
+<% } %> 
