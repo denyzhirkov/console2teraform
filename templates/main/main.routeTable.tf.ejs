@@ -2,9 +2,9 @@
 <% routeTables.forEach(function(rt) { %>
 resource "aws_route_table" "<%= rt.resourceName %>" {
   vpc_id = var.<%= rt.resourceName %>_vpc_id
-<% if (rt.tags) { %>  tags = {
-<% Object.entries(rt.tags).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
-<% }) %>  }
+<% if (rt.tagsHcl) { %>  tags = {
+<%= rt.tagsHcl %>
+  }
 <% } %>}
 <% (rt.associations || []).forEach(function(assoc, idx) { %>
 resource "aws_route_table_association" "<%= rt.resourceName %>_<%= idx + 1 %>" {

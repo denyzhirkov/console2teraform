@@ -2,9 +2,9 @@
 <% ecsClusters.forEach(function(cluster) { %>
 resource "aws_ecs_cluster" "<%= cluster.resourceName %>" {
   name   = var.<%= cluster.resourceName %>_name
-<% if (cluster.tags) { %>  tags = {
-<% Object.entries(cluster.tags).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
-<% }) %>  }
+<% if (cluster.tagsHcl) { %>  tags = {
+<%= cluster.tagsHcl %>
+  }
 <% } %>}
 <% }) %>
 <% } %> 

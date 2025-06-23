@@ -11,6 +11,9 @@ export interface TerraformALBResource {
   subnets: string[];
   securityGroups: string[];
   tags?: { [key: string]: string };
+  subnetsHcl?: string;
+  securityGroupsHcl?: string;
+  tagsHcl?: string;
 }
 
 export interface TerraformALBListenerResource {
@@ -32,21 +35,28 @@ export interface TerraformALBTargetGroupResource {
   targetType?: string;
   healthCheckPath?: string;
   tags?: { [key: string]: string };
+  tagsHcl?: string;
 }
 
 export function mapALBsToTerraform(albs: ScannedALB[]): TerraformALBResource[] {
-  return albs.map((alb, idx) => ({
-    resourceName: alb.name.replace(/[^a-zA-Z0-9_]/g, '_') || `alb_${idx + 1}`,
-    loadBalancerArn: alb.loadBalancerArn,
-    name: alb.name,
-    type: alb.type,
-    scheme: alb.scheme,
-    dnsName: alb.dnsName,
-    vpcId: alb.vpcId,
-    subnets: alb.subnets,
-    securityGroups: alb.securityGroups,
-    tags: alb.tags,
-  }));
+  return albs.map((alb, idx) => {
+    const tags = alb.tags || {};
+    return {
+      resourceName: alb.name.replace(/[^a-zA-Z0-9_]/g, '_') || `alb_${idx + 1}`,
+      loadBalancerArn: alb.loadBalancerArn,
+      name: alb.name,
+      type: alb.type,
+      scheme: alb.scheme,
+      dnsName: alb.dnsName,
+      vpcId: alb.vpcId,
+      subnets: alb.subnets,
+      securityGroups: alb.securityGroups,
+      tags,
+      subnetsHcl: (alb.subnets || []).map(s => `"${s}"`).join(', '),
+      securityGroupsHcl: (alb.securityGroups || []).map(sg => `"${sg}"`).join(', '),
+      tagsHcl: Object.entries(tags).map(([k, v]) => `${k} = "${v}"`).join('\n    '),
+    };
+  });
 }
 
 export function mapALBListenersToTerraform(listeners: ScannedALBListener[]): TerraformALBListenerResource[] {
@@ -61,15 +71,19 @@ export function mapALBListenersToTerraform(listeners: ScannedALBListener[]): Ter
 }
 
 export function mapALBTargetGroupsToTerraform(tgs: ScannedALBTargetGroup[]): TerraformALBTargetGroupResource[] {
-  return tgs.map((tg, idx) => ({
-    resourceName: tg.name.replace(/[^a-zA-Z0-9_]/g, '_') || `alb_tg_${idx + 1}`,
-    targetGroupArn: tg.targetGroupArn,
-    name: tg.name,
-    protocol: tg.protocol,
-    port: tg.port,
-    vpcId: tg.vpcId,
-    targetType: tg.targetType,
-    healthCheckPath: tg.healthCheckPath,
-    tags: tg.tags,
-  }));
+  return tgs.map((tg, idx) => {
+    const tags = tg.tags || {};
+    return {
+      resourceName: tg.name.replace(/[^a-zA-Z0-9_]/g, '_') || `alb_tg_${idx + 1}`,
+      targetGroupArn: tg.targetGroupArn,
+      name: tg.name,
+      protocol: tg.protocol,
+      port: tg.port,
+      vpcId: tg.vpcId,
+      targetType: tg.targetType,
+      healthCheckPath: tg.healthCheckPath,
+      tags,
+      tagsHcl: Object.entries(tags).map(([k, v]) => `${k} = "${v}"`).join('\n    '),
+    };
+  });
 } 

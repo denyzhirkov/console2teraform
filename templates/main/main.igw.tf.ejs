@@ -2,9 +2,9 @@
 <% igws.forEach(function(igw) { %>
 resource "aws_internet_gateway" "<%= igw.resourceName %>" {
 <% if (igw.vpcId) { %>  vpc_id = var.<%= igw.resourceName %>_vpc_id
-<% } %><% if (igw.tags) { %>  tags = {
-<% Object.entries(igw.tags).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
-<% }) %>  }
+<% } %><% if (igw.tagsHcl) { %>  tags = {
+<%= igw.tagsHcl %>
+  }
 <% } %>}
 <% }) %>
 <% } %> 
