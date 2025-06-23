@@ -2,8 +2,8 @@
 <% ecsTaskDefs.forEach(function(td) { %>
 resource "aws_ecs_task_definition" "<%= td.resourceName %>" {
   family                   = var.<%= td.resourceName %>_family
-  container_definitions    = jsonencode(<%= JSON.stringify(td.containerDefinitions) %>)
-<% if (td.requiresCompatibilities) { %>  requires_compatibilities = <%= JSON.stringify(td.requiresCompatibilities) %>
+  container_definitions    = jsonencode(<%- JSON.stringify(td.containerDefinitions) %>)
+<% if (td.requiresCompatibilities) { %>  requires_compatibilities = <%- JSON.stringify(td.requiresCompatibilities) %>
 <% } %><% if (td.cpu) { %>  cpu    = var.<%= td.resourceName %>_cpu
 <% } %><% if (td.memory) { %>  memory = var.<%= td.resourceName %>_memory
 <% } %><% if (td.networkMode) { %>  network_mode = var.<%= td.resourceName %>_network_mode
