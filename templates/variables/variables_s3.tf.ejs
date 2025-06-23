@@ -1,0 +1,19 @@
+<% if (s3 && s3.length) { s3.forEach(function(bucket) { %>
+variable "<%= bucket.resourceName %>_bucket" {
+  description = "Bucket name for S3 <%= bucket.resourceName %>"
+  type        = string
+  default     = "<%= bucket.bucket || '' %>"
+}
+variable "<%= bucket.resourceName %>_acl" {
+  description = "ACL for S3 <%= bucket.resourceName %>"
+  type        = string
+  default     = "<%= bucket.acl || 'private' %>"
+}
+variable "<%= bucket.resourceName %>_tags" {
+  description = "Tags for S3 <%= bucket.resourceName %>"
+  type        = map(string)
+  default     = {
+<% Object.entries(bucket.tags || {}).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
+<% }) %>  }
+}
+<% }) } %> 

@@ -122,7 +122,21 @@ async function main() {
     // Generate provider.tf
     await generateProviderTf();
     // Generate variables.tf
-    await generateVariablesTf();
+    await generateVariablesTf(
+      tfEC2,
+      tfS3,
+      tfSG,
+      tfVPCs,
+      tfSubnets,
+      tfIGWs,
+      tfRouteTables,
+      tfECSClusters,
+      tfECSServices,
+      tfECSTaskDefs,
+      tfALBs,
+      tfALBListeners,
+      tfALBTargetGroups
+    );
     // Generate outputs.tf
     await generateOutputsTf(tfEC2, tfS3, tfSG, tfVPCs, tfSubnets, tfIGWs, tfRouteTables, tfECSClusters, tfECSServices, tfECSTaskDefs, tfALBs, tfALBListeners, tfALBTargetGroups);
     console.log("Done!");

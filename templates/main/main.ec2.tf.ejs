@@ -1,0 +1,11 @@
+<% if (ec2 && ec2.length) { %>
+<% ec2.forEach(function(instance) { %>
+resource "aws_instance" "<%= instance.resourceName %>" {
+  ami           = var.<%= instance.resourceName %>_ami
+  instance_type = var.<%= instance.resourceName %>_instance_type
+  subnet_id     = var.<%= instance.resourceName %>_subnet_id
+  vpc_security_group_ids = var.<%= instance.resourceName %>_security_groups
+  tags = var.<%= instance.resourceName %>_tags
+}
+<% }) %>
+<% } %> 

@@ -1,0 +1,22 @@
+<% if (ecsTaskDefs && ecsTaskDefs.length) { ecsTaskDefs.forEach(function(td) { %>
+variable "<%= td.resourceName %>_family" {
+  description = "Family for ECS Task Definition <%= td.resourceName %>"
+  type        = string
+  default     = "<%= td.family %>"
+}
+<% if (td.cpu) { %>variable "<%= td.resourceName %>_cpu" {
+  description = "CPU for ECS Task Definition <%= td.resourceName %>"
+  type        = string
+  default     = "<%= td.cpu %>"
+}
+<% } %><% if (td.memory) { %>variable "<%= td.resourceName %>_memory" {
+  description = "Memory for ECS Task Definition <%= td.resourceName %>"
+  type        = string
+  default     = "<%= td.memory %>"
+}
+<% } %><% if (td.networkMode) { %>variable "<%= td.resourceName %>_network_mode" {
+  description = "Network mode for ECS Task Definition <%= td.resourceName %>"
+  type        = string
+  default     = "<%= td.networkMode %>"
+}
+<% } %><% }) } %> 

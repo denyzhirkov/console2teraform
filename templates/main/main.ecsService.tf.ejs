@@ -1,0 +1,14 @@
+<% if (ecsServices && ecsServices.length) { %>
+<% ecsServices.forEach(function(service) { %>
+resource "aws_ecs_service" "<%= service.resourceName %>" {
+  name            = var.<%= service.resourceName %>_name
+  cluster         = "<%= service.clusterArn %>"
+  task_definition = "<%= service.taskDefinition %>"
+  desired_count   = var.<%= service.resourceName %>_desired_count
+<% if (service.launchType) { %>  launch_type = var.<%= service.resourceName %>_launch_type
+<% } %><% if (service.tags) { %>  tags = {
+<% Object.entries(service.tags).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
+<% }) %>  }
+<% } %>}
+<% }) %>
+<% } %> 

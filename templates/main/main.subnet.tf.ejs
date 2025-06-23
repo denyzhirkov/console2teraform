@@ -1,0 +1,12 @@
+<% if (subnets && subnets.length) { %>
+<% subnets.forEach(function(subnet) { %>
+resource "aws_subnet" "<%= subnet.resourceName %>" {
+  vpc_id            = "<%= subnet.vpcId %>"
+  cidr_block        = var.<%= subnet.resourceName %>_cidr_block
+  availability_zone = var.<%= subnet.resourceName %>_availability_zone
+<% if (subnet.tags) { %>  tags = {
+<% Object.entries(subnet.tags).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
+<% }) %>  }
+<% } %>}
+<% }) %>
+<% } %> 

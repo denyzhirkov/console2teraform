@@ -1,0 +1,17 @@
+<% if (ecsServices && ecsServices.length) { ecsServices.forEach(function(service) { %>
+variable "<%= service.resourceName %>_name" {
+  description = "Name for ECS Service <%= service.resourceName %>"
+  type        = string
+  default     = "<%= service.resourceName %>"
+}
+variable "<%= service.resourceName %>_desired_count" {
+  description = "Desired count for ECS Service <%= service.resourceName %>"
+  type        = number
+  default     = <%= service.desiredCount %>
+}
+<% if (service.launchType) { %>variable "<%= service.resourceName %>_launch_type" {
+  description = "Launch type for ECS Service <%= service.resourceName %>"
+  type        = string
+  default     = "<%= service.launchType %>"
+}
+<% } %><% }) } %> 

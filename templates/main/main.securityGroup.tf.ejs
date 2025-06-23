@@ -1,0 +1,28 @@
+<% if (securityGroups && securityGroups.length) { %>
+<% securityGroups.forEach(function(sg) { %>
+resource "aws_security_group" "<%= sg.resourceName %>" {
+  description = var.<%= sg.resourceName %>_description
+<% if (sg.vpcId) { %>  vpc_id = var.<%= sg.resourceName %>_vpc_id
+<% } %>
+<% (sg.ingress || []).forEach(function(rule) { %>
+  ingress {
+    from_port   = <%= typeof rule.FromPort !== 'undefined' ? rule.FromPort : 0 %>
+    to_port     = <%= typeof rule.ToPort !== 'undefined' ? rule.ToPort : 0 %>
+    protocol    = "<%= rule.IpProtocol %>"
+    cidr_blocks = [<%=(rule.IpRanges || []).map(r => `"${r.CidrIp}"`).join(', ') %>]
+  }
+<% }) %>
+<% (sg.egress || []).forEach(function(rule) { %>
+  egress {
+    from_port   = <%= typeof rule.FromPort !== 'undefined' ? rule.FromPort : 0 %>
+    to_port     = <%= typeof rule.ToPort !== 'undefined' ? rule.ToPort : 0 %>
+    protocol    = "<%= rule.IpProtocol %>"
+    cidr_blocks = [<%=(rule.IpRanges || []).map(r => `"${r.CidrIp}"`).join(', ') %>]
+  }
+<% }) %>
+<% if (sg.tags) { %>  tags = {
+<% Object.entries(sg.tags).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
+<% }) %>  }
+<% } %>}
+<% }) %>
+<% } %> 

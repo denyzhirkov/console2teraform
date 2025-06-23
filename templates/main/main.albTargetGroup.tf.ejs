@@ -1,0 +1,14 @@
+<% if (albTargetGroups && albTargetGroups.length) { %>
+<% albTargetGroups.forEach(function(tg) { %>
+resource "aws_lb_target_group" "<%= tg.resourceName %>" {
+  name     = var.<%= tg.resourceName %>_name
+  port     = var.<%= tg.resourceName %>_port
+  protocol = var.<%= tg.resourceName %>_protocol
+  vpc_id   = var.<%= tg.resourceName %>_vpc_id
+<% if (tg.targetType) { %>  target_type = var.<%= tg.resourceName %>_target_type
+<% } %><% if (tg.healthCheckPath) { %>  health_check {
+    path = var.<%= tg.resourceName %>_health_check_path
+  }
+<% } %>}
+<% }) %>
+<% } %> 

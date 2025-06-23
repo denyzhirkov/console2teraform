@@ -1,0 +1,17 @@
+<% if (albListeners && albListeners.length) { albListeners.forEach(function(listener) { %>
+variable "<%= listener.resourceName %>_port" {
+  description = "Port for ALB Listener <%= listener.resourceName %>"
+  type        = number
+  default     = <%= listener.port %>
+}
+variable "<%= listener.resourceName %>_protocol" {
+  description = "Protocol for ALB Listener <%= listener.resourceName %>"
+  type        = string
+  default     = "<%= listener.protocol %>"
+}
+variable "<%= listener.resourceName %>_default_action_type" {
+  description = "Default action type for ALB Listener <%= listener.resourceName %>"
+  type        = string
+  default     = "<%= listener.defaultActions[0]?.Type || 'forward' %>"
+}
+<% }) } %> 

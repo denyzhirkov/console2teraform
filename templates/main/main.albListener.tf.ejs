@@ -1,0 +1,13 @@
+<% if (albListeners && albListeners.length) { %>
+<% albListeners.forEach(function(listener) { %>
+resource "aws_lb_listener" "<%= listener.resourceName %>" {
+  load_balancer_arn = aws_lb.<%= listener.loadBalancerArn.split('/').pop() %>.arn
+  port              = var.<%= listener.resourceName %>_port
+  protocol          = var.<%= listener.resourceName %>_protocol
+  default_action {
+    type             = var.<%= listener.resourceName %>_default_action_type
+    target_group_arn = aws_lb_target_group.<%= listener.defaultActions[0]?.TargetGroupArn ? listener.defaultActions[0].TargetGroupArn.split('/')[1] : '' %>.arn
+  }
+}
+<% }) %>
+<% } %> 

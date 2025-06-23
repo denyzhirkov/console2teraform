@@ -1,0 +1,7 @@
+<% if (ecsClusters && ecsClusters.length) { ecsClusters.forEach(function(cluster) { %>
+variable "<%= cluster.resourceName %>_name" {
+  description = "Name for ECS Cluster <%= cluster.resourceName %>"
+  type        = string
+  default     = "<%= cluster.resourceName %>"
+}
+<% }) } %> 

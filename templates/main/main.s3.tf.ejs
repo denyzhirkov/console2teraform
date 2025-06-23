@@ -1,0 +1,12 @@
+<% if (s3 && s3.length) { %>
+<% s3.forEach(function(bucket) { %>
+resource "aws_s3_bucket" "<%= bucket.resourceName %>" {
+  bucket = var.<%= bucket.resourceName %>_bucket
+  acl    = "<%= bucket.acl %>"
+  // Uncomment and use if tags are present:
+  // tags = {
+  //   key = "value"
+  // }
+}
+<% }) %>
+<% } %> 

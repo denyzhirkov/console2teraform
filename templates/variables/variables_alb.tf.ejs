@@ -1,0 +1,7 @@
+<% if (albs && albs.length) { albs.forEach(function(alb) { %>
+variable "<%= alb.resourceName %>_name" {
+  description = "Name for ALB <%= alb.resourceName %>"
+  type        = string
+  default     = "<%= alb.name %>"
+}
+<% }) } %> 

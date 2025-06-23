@@ -1,0 +1,19 @@
+<% if (securityGroups && securityGroups.length) { securityGroups.forEach(function(sg) { %>
+variable "<%= sg.resourceName %>_description" {
+  description = "Description for Security Group <%= sg.resourceName %>"
+  type        = string
+  default     = "<%= sg.description || '' %>"
+}
+variable "<%= sg.resourceName %>_vpc_id" {
+  description = "VPC ID for Security Group <%= sg.resourceName %>"
+  type        = string
+  default     = "<%= sg.vpcId || '' %>"
+}
+variable "<%= sg.resourceName %>_tags" {
+  description = "Tags for Security Group <%= sg.resourceName %>"
+  type        = map(string)
+  default     = {
+<% Object.entries(sg.tags || {}).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
+<% }) %>  }
+}
+<% }) } %> 
