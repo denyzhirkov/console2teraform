@@ -9,7 +9,7 @@ resource "aws_security_group" "<%= sg.resourceName %>" {
     from_port   = <%= typeof rule.FromPort !== 'undefined' ? rule.FromPort : 0 %>
     to_port     = <%= typeof rule.ToPort !== 'undefined' ? rule.ToPort : 0 %>
     protocol    = "<%= rule.IpProtocol %>"
-    cidr_blocks = [<%-(rule.IpRanges || []).map(r => `"${r.CidrIp}"`).join(', ') %>]
+    cidr_blocks = [<%= rule.cidrBlocksHcl %>]
   }
 <% }) %>
 <% (sg.egress || []).forEach(function(rule) { %>
@@ -17,7 +17,7 @@ resource "aws_security_group" "<%= sg.resourceName %>" {
     from_port   = <%= typeof rule.FromPort !== 'undefined' ? rule.FromPort : 0 %>
     to_port     = <%= typeof rule.ToPort !== 'undefined' ? rule.ToPort : 0 %>
     protocol    = "<%= rule.IpProtocol %>"
-    cidr_blocks = [<%-(rule.IpRanges || []).map(r => `"${r.CidrIp}"`).join(', ') %>]
+    cidr_blocks = [<%= rule.cidrBlocksHcl %>]
   }
 <% }) %>
 <% if (sg.tags) { %>  tags = {

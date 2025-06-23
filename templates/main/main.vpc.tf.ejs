@@ -2,9 +2,9 @@
 <% vpcs.forEach(function(vpc) { %>
 resource "aws_vpc" "<%= vpc.resourceName %>" {
   cidr_block = var.<%= vpc.resourceName %>_cidr_block
-<% if (vpc.tags) { %>  tags = {
-<% Object.entries(vpc.tags).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
-<% }) %>  }
+<% if (vpc.tagsHcl) { %>  tags = {
+<%= vpc.tagsHcl %>
+  }
 <% } %>}
 <% }) %>
 <% } %> 
