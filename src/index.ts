@@ -42,37 +42,36 @@ async function main() {
     const identity = await checkConnection();
     console.log(identity);
 
-    // Scan resources
-    console.log("Scanning VPCs...");
-    const vpcs = await scanVPCs();
+    // Scan resources in parallel batches of 3 using Promise.all
+    // Batch 1: VPCs, Subnets, Internet Gateways
+    console.log("Scanning VPCs, Subnets, and Internet Gateways...");
+    const [vpcs, subnets, igws] = await Promise.all([
+      scanVPCs(),
+      scanSubnets(),
+      scanInternetGateways()
+    ]);
     console.log(`VPCs found: ${vpcs.length}`);
-
-    console.log("Scanning Subnets...");
-    const subnets = await scanSubnets();
     console.log(`Subnets found: ${subnets.length}`);
-
-    console.log("Scanning Internet Gateways...");
-    const igws = await scanInternetGateways();
     console.log(`Internet Gateways found: ${igws.length}`);
 
-    console.log("Scanning Route Tables...");
-    const routeTables = await scanRouteTables();
+    // Batch 2: Route Tables, EC2, S3
+    console.log("Scanning Route Tables, EC2, and S3...");
+    const [routeTables, ec2Instances, s3Buckets] = await Promise.all([
+      scanRouteTables(),
+      scanEC2(),
+      scanS3()
+    ]);
     console.log(`Route Tables found: ${routeTables.length}`);
-
-    console.log("Scanning EC2...");
-    const ec2Instances = await scanEC2();
     console.log(`EC2 instances found: ${ec2Instances.length}`);
-
-    console.log("Scanning S3...");
-    const s3Buckets = await scanS3();
     console.log(`S3 buckets found: ${s3Buckets.length}`);
 
-    console.log("Scanning Security Groups...");
-    const securityGroups = await scanSecurityGroups();
+    // Batch 3: Security Groups, ECS Clusters
+    console.log("Scanning Security Groups and ECS Clusters...");
+    const [securityGroups, ecsClusters] = await Promise.all([
+      scanSecurityGroups(),
+      scanECSClusters()
+    ]);
     console.log(`Security Groups found: ${securityGroups.length}`);
-
-    console.log("Scanning ECS Clusters...");
-    const ecsClusters = await scanECSClusters();
     console.log(`ECS Clusters found: ${ecsClusters.length}`);
 
     let ecsServices: any[] = [];
