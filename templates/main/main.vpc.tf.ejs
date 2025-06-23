@@ -3,7 +3,7 @@
 resource "aws_vpc" "<%= vpc.resourceName %>" {
   cidr_block = var.<%= vpc.resourceName %>_cidr_block
 <% if (vpc.tagsHcl) { %>  tags = {
-<%= vpc.tagsHcl %>
+<%- vpc.tagsHcl %>
   }
 <% } %>}
 <% }) %>

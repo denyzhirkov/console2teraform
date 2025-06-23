@@ -4,11 +4,11 @@ resource "aws_lb" "<%= alb.resourceName %>" {
   name               = var.<%= alb.resourceName %>_name
   load_balancer_type = "<%= alb.type %>"
   internal           = <%= alb.scheme === 'internal' ? 'true' : 'false' %>
-  subnets            = [<%= alb.subnetsHcl %>]
-  security_groups    = [<%= alb.securityGroupsHcl %>]
+  subnets            = [<%- alb.subnetsHcl %>]
+  security_groups    = [<%- alb.securityGroupsHcl %>]
   tags = {
     Name = var.<%= alb.resourceName %>_name
-<% if (alb.tagsHcl) { %><%= alb.tagsHcl %><% } %>  }
+<% if (alb.tagsHcl) { %><%- alb.tagsHcl %><% } %>  }
 }
 <% }) %>
 <% } %> 

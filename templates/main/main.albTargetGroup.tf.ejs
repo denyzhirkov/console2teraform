@@ -10,7 +10,7 @@ resource "aws_lb_target_group" "<%= tg.resourceName %>" {
     path = var.<%= tg.resourceName %>_health_check_path
   }
 <% } %><% if (tg.tagsHcl) { %>  tags = {
-<%= tg.tagsHcl %>
+<%- tg.tagsHcl %>
   }
 <% } %>}
 <% }) %>

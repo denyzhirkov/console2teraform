@@ -7,7 +7,7 @@ resource "aws_ecs_service" "<%= service.resourceName %>" {
   desired_count   = var.<%= service.resourceName %>_desired_count
 <% if (service.launchType) { %>  launch_type = var.<%= service.resourceName %>_launch_type
 <% } %><% if (service.tagsHcl) { %>  tags = {
-<%= service.tagsHcl %>
+<%- service.tagsHcl %>
   }
 <% } %>}
 <% }) %>

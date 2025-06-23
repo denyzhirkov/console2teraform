@@ -5,7 +5,7 @@ resource "aws_subnet" "<%= subnet.resourceName %>" {
   cidr_block        = var.<%= subnet.resourceName %>_cidr_block
   availability_zone = var.<%= subnet.resourceName %>_availability_zone
 <% if (subnet.tagsHcl) { %>  tags = {
-<%= subnet.tagsHcl %>
+<%- subnet.tagsHcl %>
   }
 <% } %>}
 <% }) %>

@@ -2,13 +2,13 @@
 <% ecsTaskDefs.forEach(function(td) { %>
 resource "aws_ecs_task_definition" "<%= td.resourceName %>" {
   family                   = var.<%= td.resourceName %>_family
-  container_definitions    = jsonencode(<%= td.containerDefinitionsHcl %>)
-<% if (td.requiresCompatibilitiesHcl) { %>  requires_compatibilities = <%= td.requiresCompatibilitiesHcl %>
+  container_definitions    = jsonencode(<%- td.containerDefinitionsHcl %>)
+<% if (td.requiresCompatibilitiesHcl) { %>  requires_compatibilities = <%- td.requiresCompatibilitiesHcl %>
 <% } %><% if (td.cpu) { %>  cpu    = var.<%= td.resourceName %>_cpu
 <% } %><% if (td.memory) { %>  memory = var.<%= td.resourceName %>_memory
 <% } %><% if (td.networkMode) { %>  network_mode = var.<%= td.resourceName %>_network_mode
 <% } %><% if (td.tagsHcl) { %>  tags = {
-<%= td.tagsHcl %>
+<%- td.tagsHcl %>
 }
 <% } %>}
 <% }) %>

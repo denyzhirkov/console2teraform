@@ -3,7 +3,7 @@
 resource "aws_internet_gateway" "<%= igw.resourceName %>" {
 <% if (igw.vpcId) { %>  vpc_id = var.<%= igw.resourceName %>_vpc_id
 <% } %><% if (igw.tagsHcl) { %>  tags = {
-<%= igw.tagsHcl %>
+<%- igw.tagsHcl %>
   }
 <% } %>}
 <% }) %>
