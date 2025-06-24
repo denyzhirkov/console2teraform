@@ -47,6 +47,26 @@ A project for scanning existing AWS infrastructure and generating Terraform code
   - `provider.tf` — provider configuration
   - `variables.tf` — input variables
   - `outputs.tf` — outputs for all generated resources
+  - `terraform.tfvars` — variable values file (see below)
+
+## Using terraform.tfvars
+
+The `terraform.tfvars` file contains values for variables defined in `variables.tf`. Edit this file to set parameters for your environment (such as bucket names, instance types, etc).
+
+Terraform will automatically load this file when you run `terraform plan` or `terraform apply`.
+
+**Example:**
+```
+instance_type = "t3.micro"
+bucket_name   = "my-bucket-dev"
+```
+
+You can also create different files for different environments (e.g., `dev.tfvars`, `prod.tfvars`) and specify them explicitly:
+```
+terraform apply -var-file=dev.tfvars
+```
+
+The `terraform.tfvars` file is generated automatically based on the defined variables. Fill it with your values before running Terraform.
 
 ## How it works
 1. CLI connects to AWS and scans all supported resources.

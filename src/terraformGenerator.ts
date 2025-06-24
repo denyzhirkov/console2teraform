@@ -87,7 +87,7 @@ export async function generateVariablesTf(
   const vpcVarsRendered = ejs.render(vpcVarsTemplate, { vpcs });
   fs.writeFileSync("terraform/variables_vpc.tf", vpcVarsRendered);
 
-  // Аналогично обновить пути для остальных ресурсов:
+  // Update paths for other resources similarly:
   const subnetVarsTemplatePath = path.join(__dirname, "../templates/variables/variables_subnet.tf.ejs");
   const subnetVarsTemplate = fs.readFileSync(subnetVarsTemplatePath, "utf-8");
   const subnetVarsRendered = ejs.render(subnetVarsTemplate, { subnets });
@@ -149,14 +149,28 @@ export async function generateVariablesTf(
   const albListenerVarsRendered = ejs.render(albListenerVarsTemplate, { albListeners });
   fs.writeFileSync("terraform/variables_albListener.tf", albListenerVarsRendered);
 
-  // Общий variables.tf (если нужен)
+  // Main variables.tf (if needed)
   const variablesTfTemplatePath = path.join(__dirname, "../templates/variables/variables.tf.ejs");
+  let allVariables: { name: string, default?: string }[] = [];
   if (fs.existsSync(variablesTfTemplatePath)) {
     const variablesTfTemplate = fs.readFileSync(variablesTfTemplatePath, "utf-8");
     const variablesTfRendered = ejs.render(variablesTfTemplate, { ec2, s3, securityGroups, vpcs, subnets, igws, routeTables });
     fs.writeFileSync("terraform/variables.tf", variablesTfRendered);
+    // Try to extract variable names from the template (or from data)
+    // For simplicity: if the template contains <% variables.forEach ... %>, pass the variables array
+    // Otherwise, collect manually (or leave empty)
+    // Here we assume variables are defined in variablesTfRendered as: variable "name" { ... default = "value" ... }
+    // If no variables found — do not generate tfvars
+    const varRegex = /variable\s+"([^"]+)"[^{]*{[^}]*default\s*=\s*"([^"]*)"/g;
+    let match;
+    while ((match = varRegex.exec(variablesTfRendered)) !== null) {
+      allVariables.push({ name: match[1], default: match[2] });
+    }
   }
-
+  // Если не нашли переменные — не генерируем tfvars
+  if (allVariables.length > 0) {
+    await generateTfvarsFile(allVariables);
+  }
   console.log(`Terraform variable files generated.`);
 }
 
@@ -182,4 +196,12 @@ export async function generateOutputsTf(
   const rendered = ejs.render(template, { ec2, s3, securityGroups, vpcs, subnets, igws, routeTables, ecsClusters, ecsServices, ecsTaskDefs, albs, albListeners, albTargetGroups });
   fs.writeFileSync(outputPath, rendered);
   console.log(`Terraform file generated: ${outputPath}`);
+}
+
+export async function generateTfvarsFile(variables: { name: string, default?: string }[], outputPath: string = "terraform/terraform.tfvars") {
+  const templatePath = path.join(__dirname, "../templates/variables/terraform.tfvars.ejs");
+  const template = fs.readFileSync(templatePath, "utf-8");
+  const rendered = ejs.render(template, { variables });
+  fs.writeFileSync(outputPath, rendered);
+  console.log(`Terraform tfvars file generated: ${outputPath}`);
 }

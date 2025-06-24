@@ -39,7 +39,12 @@ export async function scanECSClusters(region?: string): Promise<ScannedECSCluste
     clusterArn: cluster.clusterArn || '',
     clusterName: cluster.clusterName || '',
     status: cluster.status || '',
-    tags: cluster.tags as { [key: string]: string } | undefined,
+    tags: Array.isArray((cluster as any).tags)
+      ? ((cluster as any).tags as ECSTag[]).reduce((acc: { [key: string]: string }, tag: ECSTag) => {
+        if (tag.key && tag.value) acc[tag.key] = tag.value;
+        return acc;
+      }, {})
+      : undefined,
   }));
 }
 
@@ -57,7 +62,12 @@ export async function scanECSServices(clusterArn: string, region?: string): Prom
     taskDefinition: service.taskDefinition || '',
     desiredCount: service.desiredCount || 1,
     launchType: service.launchType,
-    tags: service.tags as { [key: string]: string } | undefined,
+    tags: Array.isArray((service as any).tags)
+      ? ((service as any).tags as ECSTag[]).reduce((acc: { [key: string]: string }, tag: ECSTag) => {
+        if (tag.key && tag.value) acc[tag.key] = tag.value;
+        return acc;
+      }, {})
+      : undefined,
   }));
 }
 

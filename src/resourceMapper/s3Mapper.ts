@@ -12,6 +12,6 @@ export function mapS3ToTerraform(buckets: ScannedS3Bucket[]): TerraformS3Resourc
     resourceName: bucket.name.replace(/[^a-zA-Z0-9_]/g, '_') || `s3_bucket_${idx + 1}`,
     bucket: bucket.name,
     acl: "private",
-    tags: undefined, // Can be extended if needed
+    tags: bucket.tags,
   }));
 } 
