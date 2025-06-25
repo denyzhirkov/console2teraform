@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import ini from "ini";
+import { execSync } from "child_process";
 
 async function selectAwsProfile(): Promise<string> {
   const configPath = path.join(os.homedir(), ".aws/config");
@@ -169,10 +170,171 @@ async function main() {
     // Generate outputs.tf
     await generateOutputsTf(tfEC2, tfS3, tfSG, tfVPCs, tfSubnets, tfIGWs, tfRouteTables, tfECSClusters, tfECSServices, tfECSTaskDefs, tfALBs, tfALBListeners, tfALBTargetGroups);
     console.log("Done!");
+
+    // Ask user if they want to run terraform import for all generated resources
+    const { doImport } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "doImport",
+        message: "Would you like to automatically run 'terraform import' for all generated resources to link them with the current Terraform state? (Recommended for existing AWS infrastructure)",
+        default: false,
+      },
+    ]);
+
+    if (doImport) {
+      await runTerraformImport({
+        tfEC2,
+        tfS3,
+        tfSG,
+        tfVPCs,
+        tfSubnets,
+        tfIGWs,
+        tfRouteTables,
+        tfECSClusters,
+        tfECSServices,
+        tfECSTaskDefs,
+        tfALBs,
+        tfALBListeners,
+        tfALBTargetGroups
+      });
+    }
   } catch (error) {
     console.error("Error:", error);
     process.exit(1);
   }
+}
+
+async function runTerraformImport(resources: any) {
+  const { execSync } = require('child_process');
+  const tfDir = path.join(__dirname, '../terraform');
+  // Run 'terraform init' if .terraform directory does not exist
+  if (!fs.existsSync(path.join(tfDir, '.terraform'))) {
+    console.log('Running terraform init...');
+    try {
+      execSync('terraform init', { cwd: tfDir, stdio: 'inherit' });
+    } catch (e: any) {
+      console.error('terraform init failed:', e.message);
+      return;
+    }
+  }
+
+  // Helper to run import and log result
+  function runImport(cmd: string) {
+    try {
+      console.log(`\n$ ${cmd}`);
+      execSync(cmd, { cwd: tfDir, stdio: 'inherit' });
+    } catch (e: any) {
+      console.error(`Import failed: ${e.message}`);
+    }
+  }
+
+  // EC2 Instances
+  if (resources.tfEC2) {
+    for (const r of resources.tfEC2) {
+      if (r.resourceName && r.ami) {
+        runImport(`terraform import aws_instance.${r.resourceName} ${r.instanceId}`);
+      }
+    }
+  }
+  // S3 Buckets
+  if (resources.tfS3) {
+    for (const r of resources.tfS3) {
+      if (r.resourceName && r.bucket) {
+        runImport(`terraform import aws_s3_bucket.${r.resourceName} ${r.bucket}`);
+      }
+    }
+  }
+  // VPCs
+  if (resources.tfVPCs) {
+    for (const r of resources.tfVPCs) {
+      if (r.resourceName && r.vpcId) {
+        runImport(`terraform import aws_vpc.${r.resourceName} ${r.vpcId}`);
+      }
+    }
+  }
+  // Subnets
+  if (resources.tfSubnets) {
+    for (const r of resources.tfSubnets) {
+      if (r.resourceName && r.subnetId) {
+        runImport(`terraform import aws_subnet.${r.resourceName} ${r.subnetId}`);
+      }
+    }
+  }
+  // Security Groups
+  if (resources.tfSG) {
+    for (const r of resources.tfSG) {
+      if (r.resourceName && r.groupId) {
+        runImport(`terraform import aws_security_group.${r.resourceName} ${r.groupId}`);
+      }
+    }
+  }
+  // IGWs
+  if (resources.tfIGWs) {
+    for (const r of resources.tfIGWs) {
+      if (r.resourceName && r.igwId) {
+        runImport(`terraform import aws_internet_gateway.${r.resourceName} ${r.igwId}`);
+      }
+    }
+  }
+  // Route Tables
+  if (resources.tfRouteTables) {
+    for (const r of resources.tfRouteTables) {
+      if (r.resourceName && r.routeTableId) {
+        runImport(`terraform import aws_route_table.${r.resourceName} ${r.routeTableId}`);
+      }
+    }
+  }
+  // ECS Clusters
+  if (resources.tfECSClusters) {
+    for (const r of resources.tfECSClusters) {
+      if (r.resourceName && r.clusterArn) {
+        runImport(`terraform import aws_ecs_cluster.${r.resourceName} ${r.clusterArn}`);
+      }
+    }
+  }
+  // ECS Services
+  if (resources.tfECSServices) {
+    for (const r of resources.tfECSServices) {
+      if (r.resourceName && r.clusterArn && r.serviceName) {
+        // ECS service import format: cluster_name/service_name
+        const clusterName = r.clusterArn.split('/').pop();
+        runImport(`terraform import aws_ecs_service.${r.resourceName} ${clusterName}/${r.serviceName}`);
+      }
+    }
+  }
+  // ECS Task Definitions
+  if (resources.tfECSTaskDefs) {
+    for (const r of resources.tfECSTaskDefs) {
+      if (r.resourceName && r.taskDefinitionArn) {
+        runImport(`terraform import aws_ecs_task_definition.${r.resourceName} ${r.taskDefinitionArn}`);
+      }
+    }
+  }
+  // ALBs
+  if (resources.tfALBs) {
+    for (const r of resources.tfALBs) {
+      if (r.resourceName && r.loadBalancerArn) {
+        runImport(`terraform import aws_lb.${r.resourceName} ${r.loadBalancerArn}`);
+      }
+    }
+  }
+  // ALB Target Groups
+  if (resources.tfALBTargetGroups) {
+    for (const r of resources.tfALBTargetGroups) {
+      if (r.resourceName && r.targetGroupArn) {
+        runImport(`terraform import aws_lb_target_group.${r.resourceName} ${r.targetGroupArn}`);
+      }
+    }
+  }
+  // ALB Listeners
+  if (resources.tfALBListeners) {
+    for (const r of resources.tfALBListeners) {
+      if (r.resourceName && r.listenerArn) {
+        runImport(`terraform import aws_lb_listener.${r.resourceName} ${r.listenerArn}`);
+      }
+    }
+  }
+  console.log('\nTerraform import process completed.');
 }
 
 main();
