@@ -198,8 +198,14 @@ async function main() {
         tfALBTargetGroups
       });
     }
-  } catch (error) {
-    console.error("Error:", error);
+  } catch (error: any) {
+    const errMsg = error?.message || error?.toString() || '';
+    if (errMsg.includes('Token is expired') || errMsg.includes('CredentialsProviderError')) {
+      const profile = process.env.AWS_PROFILE || '<your-profile>';
+      console.error(`\nAWS SSO session is expired or credentials are invalid.\nPlease run:\n  aws sso login --profile ${profile}\nThen restart this program.`);
+    } else {
+      console.error("Error:", error);
+    }
     process.exit(1);
   }
 }
