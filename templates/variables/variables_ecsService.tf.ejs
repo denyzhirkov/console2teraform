@@ -1,5 +1,19 @@
 <% function normalize(name) { return (name || '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z_]+/, '_'); } %>
 <% if (ecsServices && ecsServices.length) { ecsServices.forEach(function(service) { %>
+<% if (service.uniqueVarNames.service_arn) { %>
+variable "<%= service.uniqueVarNames.service_arn %>" {
+  description = "Service ARN for ECS Service <%= service.resourceName %>"
+  type        = string
+  default     = "<%= service.serviceArn || '' %>"
+}
+<% } %>
+<% if (service.uniqueVarNames.cluster_arn) { %>
+variable "<%= service.uniqueVarNames.cluster_arn %>" {
+  description = "Cluster ARN for ECS Service <%= service.resourceName %>"
+  type        = string
+  default     = "<%= service.clusterArn || '' %>"
+}
+<% } %>
 variable "<%= normalize(service.resourceName) %>_name" {
   description = "Name for ECS Service <%= service.resourceName %>"
   type        = string

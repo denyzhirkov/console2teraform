@@ -1,10 +1,12 @@
 <% function normalize(name) { return (name || '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z_]+/, '_'); } %>
 <% if (vpcs && vpcs.length) { vpcs.forEach(function(vpc) { %>
-variable "<%= normalize(vpc.resourceName) %>_cidr_block" {
+<% if (vpc.uniqueVarNames.cidr_block) { %>
+variable "<%= vpc.uniqueVarNames.cidr_block %>" {
   description = "CIDR block for VPC <%= vpc.resourceName %>"
   type        = string
   default     = "<%= vpc.cidrBlock || '' %>"
 }
+<% } %>
 variable "<%= normalize(vpc.resourceName) %>_tags" {
   description = "Tags for VPC <%= vpc.resourceName %>"
   type        = map(string)

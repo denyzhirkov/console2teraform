@@ -1,16 +1,20 @@
 <% function normalize(name) { return (name || '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z_]+/, '_'); } %>
 <% if (securityGroups && securityGroups.length) { securityGroups.forEach(function(sg) { %>
-variable "<%= normalize(sg.resourceName) %>_description" {
+<% if (sg.uniqueVarNames.description) { %>
+variable "<%= sg.uniqueVarNames.description %>" {
   description = "Description for Security Group <%= sg.resourceName %>"
   type        = string
   default     = "<%= sg.description || '' %>"
 }
-variable "<%= normalize(sg.resourceName) %>_vpc_id" {
+<% } %>
+<% if (sg.uniqueVarNames.vpc_id) { %>
+variable "<%= sg.uniqueVarNames.vpc_id %>" {
   description = "VPC ID for Security Group <%= sg.resourceName %>"
   type        = string
   default     = "<%= sg.vpcId || '' %>"
 }
-variable "<%= normalize(sg.resourceName) %>_tags" {
+<% } %>
+variable "<%= sg.resourceName %>_tags" {
   description = "Tags for Security Group <%= sg.resourceName %>"
   type        = map(string)
   default     = {

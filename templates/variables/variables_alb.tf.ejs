@@ -1,5 +1,12 @@
 <% function normalize(name) { return (name || '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z_]+/, '_'); } %>
 <% if (albs && albs.length) { albs.forEach(function(alb) { %>
+<% if (alb.uniqueVarNames.lb_arn) { %>
+variable "<%= alb.uniqueVarNames.lb_arn %>" {
+  description = "Load Balancer ARN for ALB <%= alb.resourceName %>"
+  type        = string
+  default     = "<%= alb.loadBalancerArn || '' %>"
+}
+<% } %>
 variable "<%= normalize(alb.resourceName) %>_name" {
   description = "Name for ALB <%= alb.resourceName %>"
   type        = string

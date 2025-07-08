@@ -5,11 +5,13 @@ variable "<%= normalize(cluster.resourceName) %>_name" {
   type        = string
   default     = "<%= cluster.resourceName %>"
 }
-variable "<%= normalize(cluster.resourceName) %>_arn" {
-  description = "ARN for ECS Cluster <%= cluster.resourceName %>"
+<% if (cluster.uniqueVarNames.cluster_arn) { %>
+variable "<%= cluster.uniqueVarNames.cluster_arn %>" {
+  description = "Cluster ARN for ECS Cluster <%= cluster.resourceName %>"
   type        = string
   default     = "<%= cluster.clusterArn || '' %>"
 }
+<% } %>
 variable "<%= normalize(cluster.resourceName) %>_tags" {
   description = "Tags for ECS Cluster <%= cluster.resourceName %>"
   type        = map(string)

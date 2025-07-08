@@ -1,4 +1,11 @@
 <% if (albListeners && albListeners.length) { albListeners.forEach(function(listener) { %>
+<% if (listener.uniqueVarNames.listener_arn) { %>
+variable "<%= listener.uniqueVarNames.listener_arn %>" {
+  description = "Listener ARN for ALB Listener <%= listener.resourceName %>"
+  type        = string
+  default     = "<%= listener.listenerArn || '' %>"
+}
+<% } %>
 variable "<%= listener.resourceName %>_port" {
   description = "Port for ALB Listener <%= listener.resourceName %>"
   type        = number

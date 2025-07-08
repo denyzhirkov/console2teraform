@@ -1,10 +1,12 @@
 <% function normalize(name) { return (name || '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z_]+/, '_'); } %>
 <% if (igws && igws.length) { igws.forEach(function(igw) { %>
-variable "<%= normalize(igw.resourceName) %>_vpc_id" {
+<% if (igw.uniqueVarNames.vpc_id) { %>
+variable "<%= igw.uniqueVarNames.vpc_id %>" {
   description = "VPC ID for IGW <%= igw.resourceName %>"
   type        = string
   default     = "<%= igw.vpcId || '' %>"
 }
+<% } %>
 variable "<%= normalize(igw.resourceName) %>_tags" {
   description = "Tags for IGW <%= igw.resourceName %>"
   type        = map(string)

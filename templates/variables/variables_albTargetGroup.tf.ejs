@@ -1,32 +1,9 @@
 <% if (albTargetGroups && albTargetGroups.length) { albTargetGroups.forEach(function(tg) { %>
-variable "<%= tg.resourceName %>_name" {
-  description = "Name for ALB Target Group <%= tg.resourceName %>"
+<% if (tg.uniqueVarNames.tg_arn) { %>
+variable "<%= tg.uniqueVarNames.tg_arn %>" {
+  description = "Target Group ARN for ALB Target Group <%= tg.resourceName %>"
   type        = string
-  default     = "<%= tg.name %>"
+  default     = "<%= tg.targetGroupArn || '' %>"
 }
-variable "<%= tg.resourceName %>_port" {
-  description = "Port for ALB Target Group <%= tg.resourceName %>"
-  type        = number
-  default     = <%= tg.port %>
-}
-variable "<%= tg.resourceName %>_protocol" {
-  description = "Protocol for ALB Target Group <%= tg.resourceName %>"
-  type        = string
-  default     = "<%= tg.protocol %>"
-}
-variable "<%= tg.resourceName %>_vpc_id" {
-  description = "VPC ID for ALB Target Group <%= tg.resourceName %>"
-  type        = string
-  default     = "<%= tg.vpcId %>"
-}
-<% if (tg.targetType) { %>variable "<%= tg.resourceName %>_target_type" {
-  description = "Target type for ALB Target Group <%= tg.resourceName %>"
-  type        = string
-  default     = "<%= tg.targetType %>"
-}
-<% } %><% if (tg.healthCheckPath) { %>variable "<%= tg.resourceName %>_health_check_path" {
-  description = "Health check path for ALB Target Group <%= tg.resourceName %>"
-  type        = string
-  default     = "<%= tg.healthCheckPath %>"
-}
-<% } %><% }) } %> 
+<% } %>
+<% }) } %> 

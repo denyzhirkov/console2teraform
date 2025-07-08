@@ -157,11 +157,27 @@ async function main() {
       },
     ]);
 
-    // Здесь можно добавить дополнительную логику выбора, какие ресурсы импортировать, а какие создавать (если потребуется)
-    // Пока просто передаём doImport как флаг
+    // Collect variable/output names for imported resources
+    // (MVP: just collect resourceName + fields for selected resources)
+    const importedVariableNames = new Set<string>();
+    const importedOutputNames = new Set<string>();
+    if (doImport) {
+      // Example: for all selected resources, add their resourceName + fields (can be extended as needed)
+      const allImported = [tfEC2, tfS3, tfSG, tfVPCs, tfSubnets, tfIGWs, tfRouteTables, tfECSClusters, tfECSServices, tfECSTaskDefs, tfALBs, tfALBListeners, tfALBTargetGroups].flat();
+      for (const res of allImported) {
+        if (res && res.resourceName) {
+          // Type guard for vpcId
+          if ('vpcId' in res && res.vpcId) importedVariableNames.add(`${res.resourceName}_vpc_id`);
+          if ('description' in res && res.description) importedVariableNames.add(`${res.resourceName}_description`);
+          if ('arn' in res && res.arn) importedVariableNames.add(`${res.resourceName}_arn`);
+          // For outputs similarly
+          if ('arn' in res && res.arn) importedOutputNames.add(`${res.resourceName}_arn`);
+        }
+      }
+    }
 
-    // Генерируем файлы только после финального выбора пользователя
-    await generateTerraform(tfEC2, tfS3, tfSG, tfVPCs, tfSubnets, tfIGWs, tfRouteTables, tfECSClusters, tfECSServices, tfECSTaskDefs, tfALBs, tfALBListeners, tfALBTargetGroups);
+    // Generate files only after the final user choice, taking into account used names
+    await generateTerraform(tfEC2, tfS3, tfSG, tfVPCs, tfSubnets, tfIGWs, tfRouteTables, tfECSClusters, tfECSServices, tfECSTaskDefs, tfALBs, tfALBListeners, tfALBTargetGroups, Array.from(importedVariableNames), Array.from(importedOutputNames));
     await generateProviderTf();
     await generateVariablesTf(
       tfEC2,
@@ -176,9 +192,10 @@ async function main() {
       tfECSTaskDefs,
       tfALBs,
       tfALBListeners,
-      tfALBTargetGroups
+      tfALBTargetGroups,
+      Array.from(importedVariableNames)
     );
-    await generateOutputsTf(tfEC2, tfS3, tfSG, tfVPCs, tfSubnets, tfIGWs, tfRouteTables, tfECSClusters, tfECSServices, tfECSTaskDefs, tfALBs, tfALBListeners, tfALBTargetGroups);
+    await generateOutputsTf(tfEC2, tfS3, tfSG, tfVPCs, tfSubnets, tfIGWs, tfRouteTables, tfECSClusters, tfECSServices, tfECSTaskDefs, tfALBs, tfALBListeners, tfALBTargetGroups, Array.from(importedOutputNames));
     console.log("Done!");
 
     if (doImport) {
