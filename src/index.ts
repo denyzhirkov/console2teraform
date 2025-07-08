@@ -147,11 +147,22 @@ async function main() {
       fs.mkdirSync(tfDir);
     }
 
-    // Generate main.tf
+    // Ask user if they want to run terraform import for all generated resources
+    const { doImport } = await inquirer.prompt([
+      {
+        type: "confirm",
+        name: "doImport",
+        message: "Would you like to automatically run 'terraform import' for all generated resources to link them with the current Terraform state? (Recommended for existing AWS infrastructure)",
+        default: false,
+      },
+    ]);
+
+    // Здесь можно добавить дополнительную логику выбора, какие ресурсы импортировать, а какие создавать (если потребуется)
+    // Пока просто передаём doImport как флаг
+
+    // Генерируем файлы только после финального выбора пользователя
     await generateTerraform(tfEC2, tfS3, tfSG, tfVPCs, tfSubnets, tfIGWs, tfRouteTables, tfECSClusters, tfECSServices, tfECSTaskDefs, tfALBs, tfALBListeners, tfALBTargetGroups);
-    // Generate provider.tf
     await generateProviderTf();
-    // Generate variables.tf
     await generateVariablesTf(
       tfEC2,
       tfS3,
@@ -167,19 +178,8 @@ async function main() {
       tfALBListeners,
       tfALBTargetGroups
     );
-    // Generate outputs.tf
     await generateOutputsTf(tfEC2, tfS3, tfSG, tfVPCs, tfSubnets, tfIGWs, tfRouteTables, tfECSClusters, tfECSServices, tfECSTaskDefs, tfALBs, tfALBListeners, tfALBTargetGroups);
     console.log("Done!");
-
-    // Ask user if they want to run terraform import for all generated resources
-    const { doImport } = await inquirer.prompt([
-      {
-        type: "confirm",
-        name: "doImport",
-        message: "Would you like to automatically run 'terraform import' for all generated resources to link them with the current Terraform state? (Recommended for existing AWS infrastructure)",
-        default: false,
-      },
-    ]);
 
     if (doImport) {
       await runTerraformImport({
