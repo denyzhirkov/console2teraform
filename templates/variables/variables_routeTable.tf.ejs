@@ -1,14 +1,15 @@
+<% function normalize(name) { return (name || '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z_]+/, '_'); } %>
 <% if (routeTables && routeTables.length) { routeTables.forEach(function(rt) { %>
-variable "<%= rt.resourceName %>_vpc_id" {
+variable "<%= normalize(rt.resourceName) %>_vpc_id" {
   description = "VPC ID for Route Table <%= rt.resourceName %>"
   type        = string
   default     = "<%= rt.vpcId || '' %>"
 }
-variable "<%= rt.resourceName %>_tags" {
+variable "<%= normalize(rt.resourceName) %>_tags" {
   description = "Tags for Route Table <%= rt.resourceName %>"
   type        = map(string)
   default     = {
-<% Object.entries(rt.tags || {}).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
+<% Object.entries(rt.tags || {}).forEach(([k, v]) => { %>    "<%= k.replace(/"/g, '\"') %>" = "<%= v %>"
 <% }) %>  }
 }
 <% }) } %> 

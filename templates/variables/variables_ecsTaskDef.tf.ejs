@@ -1,22 +1,36 @@
-<% if (ecsTaskDefs && ecsTaskDefs.length) { ecsTaskDefs.forEach(function(td) { %>
-variable "<%= td.resourceName %>_family" {
-  description = "Family for ECS Task Definition <%= td.resourceName %>"
+<% function normalize(name) { return (name || '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z_]+/, '_'); } %>
+<% if (ecsTaskDefs && ecsTaskDefs.length) { ecsTaskDefs.forEach(function(taskdef) { %>
+variable "<%= normalize(taskdef.resourceName) %>_arn" {
+  description = "ARN for ECS Task Definition <%= taskdef.resourceName %>"
   type        = string
-  default     = "<%= td.family %>"
+  default     = "<%= taskdef.taskDefinitionArn || '' %>"
 }
-<% if (td.cpu) { %>variable "<%= td.resourceName %>_cpu" {
-  description = "CPU for ECS Task Definition <%= td.resourceName %>"
+variable "<%= normalize(taskdef.resourceName) %>_family" {
+  description = "Family for ECS Task Definition <%= taskdef.resourceName %>"
   type        = string
-  default     = "<%= td.cpu %>"
+  default     = "<%= taskdef.family || '' %>"
 }
-<% } %><% if (td.memory) { %>variable "<%= td.resourceName %>_memory" {
-  description = "Memory for ECS Task Definition <%= td.resourceName %>"
+variable "<%= normalize(taskdef.resourceName) %>_tags" {
+  description = "Tags for ECS Task Definition <%= taskdef.resourceName %>"
+  type        = map(string)
+  default     = {
+<% Object.entries(taskdef.tags || {}).forEach(([k, v]) => { %>    "<%= k.replace(/"/g, '\"') %>" = "<%= v %>"
+<% }) %>  }
+}
+<% if (taskdef.cpu) { %>variable "<%= normalize(taskdef.resourceName) %>_cpu" {
+  description = "CPU for ECS Task Definition <%= taskdef.resourceName %>"
   type        = string
-  default     = "<%= td.memory %>"
+  default     = "<%= taskdef.cpu %>"
 }
-<% } %><% if (td.networkMode) { %>variable "<%= td.resourceName %>_network_mode" {
-  description = "Network mode for ECS Task Definition <%= td.resourceName %>"
+<% } %><% if (taskdef.memory) { %>variable "<%= normalize(taskdef.resourceName) %>_memory" {
+  description = "Memory for ECS Task Definition <%= taskdef.resourceName %>"
   type        = string
-  default     = "<%= td.networkMode %>"
+  default     = "<%= taskdef.memory %>"
 }
-<% } %><% }) } %> 
+<% } %><% if (taskdef.networkMode) { %>variable "<%= normalize(taskdef.resourceName) %>_network_mode" {
+  description = "Network mode for ECS Task Definition <%= taskdef.resourceName %>"
+  type        = string
+  default     = "<%= taskdef.networkMode %>"
+}
+<% } %>
+<% }) } %> 

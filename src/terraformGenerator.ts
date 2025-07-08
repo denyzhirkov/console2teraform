@@ -169,7 +169,8 @@ export async function generateVariablesTf(
   }
   // Если не нашли переменные — не генерируем tfvars
   if (allVariables.length > 0) {
-    await generateTfvarsFile(allVariables);
+    const uniqueVariables = filterDuplicateVariables(allVariables);
+    await generateTfvarsFile(uniqueVariables);
   }
   console.log(`Terraform variable files generated.`);
 }
@@ -204,4 +205,13 @@ export async function generateTfvarsFile(variables: { name: string, default?: st
   const rendered = ejs.render(template, { variables });
   fs.writeFileSync(outputPath, rendered);
   console.log(`Terraform tfvars file generated: ${outputPath}`);
+}
+
+function filterDuplicateVariables(vars: { name: string, default?: string }[]): { name: string, default?: string }[] {
+  const seen = new Set<string>();
+  return vars.filter(v => {
+    if (seen.has(v.name)) return false;
+    seen.add(v.name);
+    return true;
+  });
 }

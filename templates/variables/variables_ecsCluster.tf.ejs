@@ -1,7 +1,20 @@
+<% function normalize(name) { return (name || '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z_]+/, '_'); } %>
 <% if (ecsClusters && ecsClusters.length) { ecsClusters.forEach(function(cluster) { %>
-variable "<%= cluster.resourceName %>_name" {
+variable "<%= normalize(cluster.resourceName) %>_name" {
   description = "Name for ECS Cluster <%= cluster.resourceName %>"
   type        = string
   default     = "<%= cluster.resourceName %>"
+}
+variable "<%= normalize(cluster.resourceName) %>_arn" {
+  description = "ARN for ECS Cluster <%= cluster.resourceName %>"
+  type        = string
+  default     = "<%= cluster.clusterArn || '' %>"
+}
+variable "<%= normalize(cluster.resourceName) %>_tags" {
+  description = "Tags for ECS Cluster <%= cluster.resourceName %>"
+  type        = map(string)
+  default     = {
+<% Object.entries(cluster.tags || {}).forEach(([k, v]) => { %>    "<%= k.replace(/"/g, '\"') %>" = "<%= v %>"
+<% }) %>  }
 }
 <% }) } %> 

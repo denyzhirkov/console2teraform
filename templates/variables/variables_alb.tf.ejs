@@ -1,7 +1,15 @@
+<% function normalize(name) { return (name || '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z_]+/, '_'); } %>
 <% if (albs && albs.length) { albs.forEach(function(alb) { %>
-variable "<%= alb.resourceName %>_name" {
+variable "<%= normalize(alb.resourceName) %>_name" {
   description = "Name for ALB <%= alb.resourceName %>"
   type        = string
-  default     = "<%= alb.name %>"
+  default     = "<%= alb.name || '' %>"
+}
+variable "<%= normalize(alb.resourceName) %>_tags" {
+  description = "Tags for ALB <%= alb.resourceName %>"
+  type        = map(string)
+  default     = {
+<% Object.entries(alb.tags || {}).forEach(([k, v]) => { %>    "<%= k.replace(/"/g, '\"') %>" = "<%= v %>"
+<% }) %>  }
 }
 <% }) } %> 

@@ -1,19 +1,20 @@
+<% function normalize(name) { return (name || '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z_]+/, '_'); } %>
 <% if (s3 && s3.length) { s3.forEach(function(bucket) { %>
-variable "<%= bucket.resourceName %>_bucket" {
+variable "<%= normalize(bucket.resourceName) %>_bucket" {
   description = "Bucket name for S3 <%= bucket.resourceName %>"
   type        = string
   default     = "<%= bucket.bucket || '' %>"
 }
-variable "<%= bucket.resourceName %>_acl" {
+variable "<%= normalize(bucket.resourceName) %>_acl" {
   description = "ACL for S3 <%= bucket.resourceName %>"
   type        = string
-  default     = "<%= bucket.acl || 'private' %>"
+  default     = "<%= bucket.acl || '' %>"
 }
-variable "<%= bucket.resourceName %>_tags" {
+variable "<%= normalize(bucket.resourceName) %>_tags" {
   description = "Tags for S3 <%= bucket.resourceName %>"
   type        = map(string)
   default     = {
-<% Object.entries(bucket.tags || {}).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
+<% Object.entries(bucket.tags || {}).forEach(([k, v]) => { %>    "<%= k.replace(/"/g, '\"') %>" = "<%= v %>"
 <% }) %>  }
 }
 <% }) } %> 

@@ -1,24 +1,25 @@
+<% function normalize(name) { return (name || '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z_]+/, '_'); } %>
 <% if (subnets && subnets.length) { subnets.forEach(function(subnet) { %>
-variable "<%= subnet.resourceName %>_vpc_id" {
+variable "<%= normalize(subnet.resourceName) %>_vpc_id" {
   description = "VPC ID for Subnet <%= subnet.resourceName %>"
   type        = string
   default     = "<%= subnet.vpcId || '' %>"
 }
-variable "<%= subnet.resourceName %>_cidr_block" {
+variable "<%= normalize(subnet.resourceName) %>_cidr_block" {
   description = "CIDR block for Subnet <%= subnet.resourceName %>"
   type        = string
   default     = "<%= subnet.cidrBlock || '' %>"
 }
-variable "<%= subnet.resourceName %>_availability_zone" {
+variable "<%= normalize(subnet.resourceName) %>_availability_zone" {
   description = "Availability zone for Subnet <%= subnet.resourceName %>"
   type        = string
   default     = "<%= subnet.availabilityZone || '' %>"
 }
-variable "<%= subnet.resourceName %>_tags" {
+variable "<%= normalize(subnet.resourceName) %>_tags" {
   description = "Tags for Subnet <%= subnet.resourceName %>"
   type        = map(string)
   default     = {
-<% Object.entries(subnet.tags || {}).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
+<% Object.entries(subnet.tags || {}).forEach(([k, v]) => { %>    "<%= k.replace(/"/g, '\"') %>" = "<%= v %>"
 <% }) %>  }
 }
 <% }) } %> 

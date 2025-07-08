@@ -1,17 +1,31 @@
+<% function normalize(name) { return (name || '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/^[^a-zA-Z_]+/, '_'); } %>
 <% if (ecsServices && ecsServices.length) { ecsServices.forEach(function(service) { %>
-variable "<%= service.resourceName %>_name" {
+variable "<%= normalize(service.resourceName) %>_name" {
   description = "Name for ECS Service <%= service.resourceName %>"
   type        = string
   default     = "<%= service.resourceName %>"
 }
-variable "<%= service.resourceName %>_desired_count" {
+variable "<%= normalize(service.resourceName) %>_desired_count" {
   description = "Desired count for ECS Service <%= service.resourceName %>"
   type        = number
   default     = <%= service.desiredCount %>
 }
-<% if (service.launchType) { %>variable "<%= service.resourceName %>_launch_type" {
+<% if (service.launchType) { %>variable "<%= normalize(service.resourceName) %>_launch_type" {
   description = "Launch type for ECS Service <%= service.resourceName %>"
   type        = string
   default     = "<%= service.launchType %>"
 }
-<% } %><% }) } %> 
+<% } %>
+variable "<%= normalize(service.resourceName) %>_arn" {
+  description = "ARN for ECS Service <%= service.resourceName %>"
+  type        = string
+  default     = "<%= service.serviceArn || '' %>"
+}
+variable "<%= normalize(service.resourceName) %>_tags" {
+  description = "Tags for ECS Service <%= service.resourceName %>"
+  type        = map(string)
+  default     = {
+<% Object.entries(service.tags || {}).forEach(([k, v]) => { %>    "<%= k.replace(/"/g, '\"') %>" = "<%= v %>"
+<% }) %>  }
+}
+<% }) } %> 
