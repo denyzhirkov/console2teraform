@@ -19,6 +19,22 @@ const resourceTemplates = [
   { key: "albTargetGroups", file: "main/main.albTargetGroup.tf.ejs" },
 ];
 
+// Функция для уникализации resourceName в массиве ресурсов
+function makeResourceNamesUnique<T extends { resourceName: string }>(resources: T[]): T[] {
+  const nameCount: Record<string, number> = {};
+  return resources.map((res) => {
+    let base = res.resourceName;
+    if (!base) base = 'resource';
+    if (nameCount[base] === undefined) {
+      nameCount[base] = 0;
+    } else {
+      nameCount[base] += 1;
+    }
+    const uniqueName = nameCount[base] === 0 ? base : `${base}_${nameCount[base]}`;
+    return { ...res, resourceName: uniqueName };
+  });
+}
+
 export async function generateTerraform(
   ec2: TerraformEC2Resource[],
   s3: TerraformS3Resource[],
@@ -35,6 +51,20 @@ export async function generateTerraform(
   albTargetGroups: TerraformALBTargetGroupResource[] = [],
   outputPath: string = "terraform/main.tf"
 ): Promise<void> {
+  // Уникализируем имена ресурсов
+  ec2 = makeResourceNamesUnique(ec2);
+  s3 = makeResourceNamesUnique(s3);
+  securityGroups = makeResourceNamesUnique(securityGroups);
+  vpcs = makeResourceNamesUnique(vpcs);
+  subnets = makeResourceNamesUnique(subnets);
+  igws = makeResourceNamesUnique(igws);
+  routeTables = makeResourceNamesUnique(routeTables);
+  ecsClusters = makeResourceNamesUnique(ecsClusters);
+  ecsServices = makeResourceNamesUnique(ecsServices);
+  ecsTaskDefs = makeResourceNamesUnique(ecsTaskDefs);
+  albs = makeResourceNamesUnique(albs);
+  albListeners = makeResourceNamesUnique(albListeners);
+  albTargetGroups = makeResourceNamesUnique(albTargetGroups);
   const allData: Record<string, any> = { ec2, s3, securityGroups, vpcs, subnets, igws, routeTables, ecsClusters, ecsServices, ecsTaskDefs, albs, albListeners, albTargetGroups };
   let mainTf = "";
   for (const { key, file } of resourceTemplates) {
@@ -75,6 +105,20 @@ export async function generateVariablesTf(
   albListeners: TerraformALBListenerResource[] = [],
   albTargetGroups: TerraformALBTargetGroupResource[] = [],
 ): Promise<void> {
+  // Уникализируем имена ресурсов
+  ec2 = makeResourceNamesUnique(ec2);
+  s3 = makeResourceNamesUnique(s3);
+  securityGroups = makeResourceNamesUnique(securityGroups);
+  vpcs = makeResourceNamesUnique(vpcs);
+  subnets = makeResourceNamesUnique(subnets);
+  igws = makeResourceNamesUnique(igws);
+  routeTables = makeResourceNamesUnique(routeTables);
+  ecsClusters = makeResourceNamesUnique(ecsClusters);
+  ecsServices = makeResourceNamesUnique(ecsServices);
+  ecsTaskDefs = makeResourceNamesUnique(ecsTaskDefs);
+  albs = makeResourceNamesUnique(albs);
+  albListeners = makeResourceNamesUnique(albListeners);
+  albTargetGroups = makeResourceNamesUnique(albTargetGroups);
   // EC2 variables
   const ec2VarsTemplatePath = path.join(__dirname, "../templates/variables/variables_ec2.tf.ejs");
   const ec2VarsTemplate = fs.readFileSync(ec2VarsTemplatePath, "utf-8");
@@ -192,6 +236,20 @@ export async function generateOutputsTf(
   albTargetGroups: TerraformALBTargetGroupResource[] = [],
   outputPath: string = "terraform/outputs.tf"
 ): Promise<void> {
+  // Уникализируем имена ресурсов
+  ec2 = makeResourceNamesUnique(ec2);
+  s3 = makeResourceNamesUnique(s3);
+  securityGroups = makeResourceNamesUnique(securityGroups);
+  vpcs = makeResourceNamesUnique(vpcs);
+  subnets = makeResourceNamesUnique(subnets);
+  igws = makeResourceNamesUnique(igws);
+  routeTables = makeResourceNamesUnique(routeTables);
+  ecsClusters = makeResourceNamesUnique(ecsClusters);
+  ecsServices = makeResourceNamesUnique(ecsServices);
+  ecsTaskDefs = makeResourceNamesUnique(ecsTaskDefs);
+  albs = makeResourceNamesUnique(albs);
+  albListeners = makeResourceNamesUnique(albListeners);
+  albTargetGroups = makeResourceNamesUnique(albTargetGroups);
   const templatePath = path.join(__dirname, "../templates/common/outputs.tf.ejs");
   const template = fs.readFileSync(templatePath, "utf-8");
   const rendered = ejs.render(template, { ec2, s3, securityGroups, vpcs, subnets, igws, routeTables, ecsClusters, ecsServices, ecsTaskDefs, albs, albListeners, albTargetGroups });
