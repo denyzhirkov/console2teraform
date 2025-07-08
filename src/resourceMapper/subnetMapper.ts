@@ -1,4 +1,5 @@
 import { ScannedSubnet } from '../resourceScanner';
+import { sanitizeResourceName, sanitizeTagKey } from './utils';
 
 export interface TerraformSubnetResource {
   resourceName: string;
@@ -13,12 +14,12 @@ export function mapSubnetsToTerraform(subnets: ScannedSubnet[]): TerraformSubnet
   return subnets.map((subnet, idx) => {
     const tags = subnet.tags || {};
     return {
-      resourceName: tags?.Name || `subnet_${idx + 1}`,
+      resourceName: sanitizeResourceName(tags?.Name || `subnet_${idx + 1}`),
       vpcId: subnet.vpcId,
       cidrBlock: subnet.cidrBlock,
       availabilityZone: subnet.availabilityZone,
       tags,
-      tagsHcl: Object.entries(tags).map(([k, v]) => `${k} = "${v}"`).join('\n    '),
+      tagsHcl: Object.entries(tags).map(([k, v]) => `${sanitizeTagKey(k)} = "${v}"`).join('\n    '),
     };
   });
 } 

@@ -1,4 +1,5 @@
 import { ScannedVPC } from '../resourceScanner';
+import { sanitizeResourceName, sanitizeTagKey } from './utils';
 
 export interface TerraformVPCResource {
   resourceName: string;
@@ -11,10 +12,10 @@ export function mapVPCsToTerraform(vpcs: ScannedVPC[]): TerraformVPCResource[] {
   return vpcs.map((vpc, idx) => {
     const tags = vpc.tags || {};
     return {
-      resourceName: tags?.Name || `vpc_${idx + 1}`,
+      resourceName: sanitizeResourceName(tags?.Name || `vpc_${idx + 1}`),
       cidrBlock: vpc.cidrBlock,
       tags,
-      tagsHcl: Object.entries(tags).map(([k, v]) => `${k} = "${v}"`).join('\n    '),
+      tagsHcl: Object.entries(tags).map(([k, v]) => `${sanitizeTagKey(k)} = "${v}"`).join('\n    '),
     };
   });
 } 

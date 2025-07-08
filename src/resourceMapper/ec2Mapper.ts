@@ -1,4 +1,5 @@
 import { ScannedEC2Instance } from '../resourceScanner';
+import { sanitizeResourceName, sanitizeTagKey } from './utils';
 
 export interface TerraformEC2Resource {
   resourceName: string;
@@ -17,7 +18,7 @@ export function mapEC2ToTerraform(instances: ScannedEC2Instance[]): TerraformEC2
     const securityGroups = inst.securityGroups || [];
     const tags = inst.tags || {};
     return {
-      resourceName: tags?.Name || `ec2_instance_${idx + 1}`,
+      resourceName: sanitizeResourceName(tags?.Name || `ec2_instance_${idx + 1}`),
       ami: inst.imageId || '',
       instanceType: inst.instanceType || '',
       subnetId: inst.subnetId || '',
@@ -25,7 +26,7 @@ export function mapEC2ToTerraform(instances: ScannedEC2Instance[]): TerraformEC2
       securityGroups,
       tags,
       securityGroupsHcl: securityGroups.map(sg => `"${sg}"`).join(', '),
-      tagsHcl: Object.entries(tags).map(([k, v]) => `${k} = "${v}"`).join('\n    '),
+      tagsHcl: Object.entries(tags).map(([k, v]) => `${sanitizeTagKey(k)} = "${v}"`).join('\n    '),
     };
   });
 } 

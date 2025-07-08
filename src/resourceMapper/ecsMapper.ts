@@ -1,4 +1,5 @@
 import { ScannedECSCluster, ScannedECSService, ScannedECSTaskDefinition } from '../resourceScanner';
+import { sanitizeResourceName, sanitizeTagKey } from './utils';
 
 export interface TerraformECSClusterResource {
   resourceName: string;
@@ -39,11 +40,11 @@ export function mapECSClustersToTerraform(clusters: ScannedECSCluster[]): Terraf
   return clusters.map((cluster, idx) => {
     const tags = cluster.tags || {};
     return {
-      resourceName: cluster.clusterName.replace(/[^a-zA-Z0-9_]/g, '_') || `ecs_cluster_${idx + 1}`,
+      resourceName: sanitizeResourceName(cluster.clusterName || `ecs_cluster_${idx + 1}`),
       clusterArn: cluster.clusterArn,
       status: cluster.status,
       tags,
-      tagsHcl: Object.entries(tags).map(([k, v]) => `${k} = "${v}"`).join('\n    '),
+      tagsHcl: Object.entries(tags).map(([k, v]) => `${sanitizeTagKey(k)} = "${v}"`).join('\n    '),
     };
   });
 }
@@ -52,7 +53,7 @@ export function mapECSServicesToTerraform(services: ScannedECSService[]): Terraf
   return services.map((service, idx) => {
     const tags = service.tags || {};
     return {
-      resourceName: service.serviceName.replace(/[^a-zA-Z0-9_]/g, '_') || `ecs_service_${idx + 1}`,
+      resourceName: sanitizeResourceName(service.serviceName || `ecs_service_${idx + 1}`),
       serviceArn: service.serviceArn,
       serviceName: service.serviceName,
       clusterArn: service.clusterArn,
@@ -60,7 +61,7 @@ export function mapECSServicesToTerraform(services: ScannedECSService[]): Terraf
       desiredCount: service.desiredCount,
       launchType: service.launchType,
       tags,
-      tagsHcl: Object.entries(tags).map(([k, v]) => `${k} = "${v}"`).join('\n    '),
+      tagsHcl: Object.entries(tags).map(([k, v]) => `${sanitizeTagKey(k)} = "${v}"`).join('\n    '),
     };
   });
 }
@@ -69,7 +70,7 @@ export function mapECSTaskDefinitionsToTerraform(defs: ScannedECSTaskDefinition[
   return defs.map((def, idx) => {
     const tags = def.tags || {};
     return {
-      resourceName: def.family.replace(/[^a-zA-Z0-9_]/g, '_') || `ecs_taskdef_${idx + 1}`,
+      resourceName: sanitizeResourceName(def.family || `ecs_taskdef_${idx + 1}`),
       taskDefinitionArn: def.taskDefinitionArn,
       family: def.family,
       containerDefinitions: def.containerDefinitions,
@@ -78,7 +79,7 @@ export function mapECSTaskDefinitionsToTerraform(defs: ScannedECSTaskDefinition[
       memory: def.memory,
       networkMode: def.networkMode,
       tags,
-      tagsHcl: Object.entries(tags).map(([k, v]) => `${k} = "${v}"`).join('\n    '),
+      tagsHcl: Object.entries(tags).map(([k, v]) => `${sanitizeTagKey(k)} = "${v}"`).join('\n    '),
       containerDefinitionsHcl: JSON.stringify(def.containerDefinitions),
       requiresCompatibilitiesHcl: def.requiresCompatibilities ? JSON.stringify(def.requiresCompatibilities) : undefined,
     };

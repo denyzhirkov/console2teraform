@@ -1,4 +1,5 @@
 import { ScannedInternetGateway } from '../resourceScanner';
+import { sanitizeResourceName, sanitizeTagKey } from './utils';
 
 export interface TerraformIGWResource {
   resourceName: string;
@@ -11,10 +12,10 @@ export function mapIGWsToTerraform(igws: ScannedInternetGateway[]): TerraformIGW
   return igws.map((igw, idx) => {
     const tags = igw.tags || {};
     return {
-      resourceName: tags?.Name || `igw_${idx + 1}`,
+      resourceName: sanitizeResourceName(tags?.Name || `igw_${idx + 1}`),
       vpcId: igw.vpcId,
       tags,
-      tagsHcl: Object.entries(tags).map(([k, v]) => `${k} = "${v}"`).join('\n    '),
+      tagsHcl: Object.entries(tags).map(([k, v]) => `${sanitizeTagKey(k)} = "${v}"`).join('\n    '),
     };
   });
 } 

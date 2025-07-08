@@ -1,4 +1,5 @@
 import { ScannedRouteTable } from '../resourceScanner';
+import { sanitizeResourceName, sanitizeTagKey } from './utils';
 
 export interface TerraformRouteTableResource {
   resourceName: string;
@@ -13,12 +14,12 @@ export function mapRouteTablesToTerraform(routeTables: ScannedRouteTable[]): Ter
   return routeTables.map((rt, idx) => {
     const tags = rt.tags || {};
     return {
-      resourceName: tags?.Name || `route_table_${idx + 1}`,
+      resourceName: sanitizeResourceName(tags?.Name || `route_table_${idx + 1}`),
       vpcId: rt.vpcId,
       routes: rt.routes,
       associations: rt.associations,
       tags,
-      tagsHcl: Object.entries(tags).map(([k, v]) => `${k} = "${v}"`).join('\n    '),
+      tagsHcl: Object.entries(tags).map(([k, v]) => `${sanitizeTagKey(k)} = "${v}"`).join('\n    '),
     };
   });
 } 

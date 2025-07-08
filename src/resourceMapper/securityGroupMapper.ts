@@ -1,4 +1,5 @@
 import { ScannedSecurityGroup } from '../resourceScanner';
+import { sanitizeResourceName, sanitizeTagKey } from './utils';
 
 export interface TerraformSecurityGroupResource {
   resourceName: string;
@@ -11,7 +12,7 @@ export interface TerraformSecurityGroupResource {
 
 export function mapSecurityGroupsToTerraform(groups: ScannedSecurityGroup[]): TerraformSecurityGroupResource[] {
   return groups.map((sg, idx) => ({
-    resourceName: sg.groupName.replace(/[^a-zA-Z0-9_]/g, '_') || `security_group_${idx + 1}`,
+    resourceName: sanitizeResourceName(sg.groupName || `security_group_${idx + 1}`),
     description: sg.description,
     vpcId: sg.vpcId,
     ingress: (sg.ingress || []).map(rule => ({
@@ -23,5 +24,6 @@ export function mapSecurityGroupsToTerraform(groups: ScannedSecurityGroup[]): Te
       cidrBlocksHcl: (rule.IpRanges || []).map(r => `"${r.CidrIp}"`).join(', ')
     })),
     tags: sg.tags,
+    tagsHcl: sg.tags ? Object.entries(sg.tags).map(([k, v]) => `${sanitizeTagKey(k)} = "${v}"`).join('\n    ') : undefined,
   }));
 } 

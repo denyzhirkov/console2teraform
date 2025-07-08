@@ -1,4 +1,5 @@
 import { ScannedALB, ScannedALBListener, ScannedALBTargetGroup } from '../resourceScanner';
+import { sanitizeResourceName, sanitizeTagKey } from './utils';
 
 export interface TerraformALBResource {
   resourceName: string;
@@ -42,7 +43,7 @@ export function mapALBsToTerraform(albs: ScannedALB[]): TerraformALBResource[] {
   return albs.map((alb, idx) => {
     const tags = alb.tags || {};
     return {
-      resourceName: alb.name.replace(/[^a-zA-Z0-9_]/g, '_') || `alb_${idx + 1}`,
+      resourceName: sanitizeResourceName(alb.name) || `alb_${idx + 1}`,
       loadBalancerArn: alb.loadBalancerArn,
       name: alb.name,
       type: alb.type,
@@ -54,7 +55,7 @@ export function mapALBsToTerraform(albs: ScannedALB[]): TerraformALBResource[] {
       tags,
       subnetsHcl: (alb.subnets || []).map(s => `"${s}"`).join(', '),
       securityGroupsHcl: (alb.securityGroups || []).map(sg => `"${sg}"`).join(', '),
-      tagsHcl: Object.entries(tags).map(([k, v]) => `${k} = "${v}"`).join('\n    '),
+      tagsHcl: Object.entries(tags).map(([k, v]) => `${sanitizeTagKey(k)} = "${v}"`).join('\n    '),
     };
   });
 }
@@ -74,7 +75,7 @@ export function mapALBTargetGroupsToTerraform(tgs: ScannedALBTargetGroup[]): Ter
   return tgs.map((tg, idx) => {
     const tags = tg.tags || {};
     return {
-      resourceName: tg.name.replace(/[^a-zA-Z0-9_]/g, '_') || `alb_tg_${idx + 1}`,
+      resourceName: sanitizeResourceName(tg.name) || `alb_tg_${idx + 1}`,
       targetGroupArn: tg.targetGroupArn,
       name: tg.name,
       protocol: tg.protocol,
@@ -83,7 +84,7 @@ export function mapALBTargetGroupsToTerraform(tgs: ScannedALBTargetGroup[]): Ter
       targetType: tg.targetType,
       healthCheckPath: tg.healthCheckPath,
       tags,
-      tagsHcl: Object.entries(tags).map(([k, v]) => `${k} = "${v}"`).join('\n    '),
+      tagsHcl: Object.entries(tags).map(([k, v]) => `${sanitizeTagKey(k)} = "${v}"`).join('\n    '),
     };
   });
 } 
