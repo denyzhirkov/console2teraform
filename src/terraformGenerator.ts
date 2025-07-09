@@ -120,100 +120,98 @@ export async function generateVariablesTf(
   albTargetGroups: TerraformALBTargetGroupResource[] = [],
   importedVariableNames: string[] = []
 ): Promise<void> {
-  // Make resource names unique
-  ec2 = makeResourceNamesUnique(ec2);
-  s3 = makeResourceNamesUnique(s3);
-  securityGroups = makeResourceNamesUnique(securityGroups);
-  vpcs = makeResourceNamesUnique(vpcs);
-  subnets = makeResourceNamesUnique(subnets);
-  igws = makeResourceNamesUnique(igws);
-  routeTables = makeResourceNamesUnique(routeTables);
-  ecsClusters = makeResourceNamesUnique(ecsClusters);
-  ecsServices = makeResourceNamesUnique(ecsServices);
-  ecsTaskDefs = makeResourceNamesUnique(ecsTaskDefs);
-  albs = makeResourceNamesUnique(albs);
-  albListeners = makeResourceNamesUnique(albListeners);
-  albTargetGroups = makeResourceNamesUnique(albTargetGroups);
-  // Global set for all variable names (start with imported)
-  const usedVarNames = new Set(importedVariableNames);
+  // Only write global variables to variables.tf
+  const globalVars = `variable "aws_region" {
+  description = "AWS region to deploy resources"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "aws_profile" {
+  description = "AWS CLI profile to use"
+  type        = string
+  default     = "default"
+}
+`;
+  fs.writeFileSync("terraform/variables.tf", globalVars);
 
   // EC2
   const ec2WithUniqueVars = ec2.map(inst => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('ami' in inst && inst.ami) uniqueVarNames.ami = makeNameGloballyUnique(`${inst.resourceName}_ami`, usedVarNames);
-    if ('instanceType' in inst && inst.instanceType) uniqueVarNames.instance_type = makeNameGloballyUnique(`${inst.resourceName}_instance_type`, usedVarNames);
-    if ('subnetId' in inst && inst.subnetId) uniqueVarNames.subnet_id = makeNameGloballyUnique(`${inst.resourceName}_subnet_id`, usedVarNames);
-    if ('vpcId' in inst && inst.vpcId) uniqueVarNames.vpc_id = makeNameGloballyUnique(`${inst.resourceName}_vpc_id`, usedVarNames);
+    if ('ami' in inst && inst.ami) uniqueVarNames.ami = makeNameGloballyUnique(`${inst.resourceName}_ami`, new Set(importedVariableNames));
+    if ('instanceType' in inst && inst.instanceType) uniqueVarNames.instance_type = makeNameGloballyUnique(`${inst.resourceName}_instance_type`, new Set(importedVariableNames));
+    if ('subnetId' in inst && inst.subnetId) uniqueVarNames.subnet_id = makeNameGloballyUnique(`${inst.resourceName}_subnet_id`, new Set(importedVariableNames));
+    if ('vpcId' in inst && inst.vpcId) uniqueVarNames.vpc_id = makeNameGloballyUnique(`${inst.resourceName}_vpc_id`, new Set(importedVariableNames));
     return { ...inst, uniqueVarNames };
   });
   // VPC
   const vpcsWithUniqueVars = vpcs.map(vpc => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('cidrBlock' in vpc && vpc.cidrBlock) uniqueVarNames.cidr_block = makeNameGloballyUnique(`${vpc.resourceName}_cidr_block`, usedVarNames);
+    if ('cidrBlock' in vpc && vpc.cidrBlock) uniqueVarNames.cidr_block = makeNameGloballyUnique(`${vpc.resourceName}_cidr_block`, new Set(importedVariableNames));
     return { ...vpc, uniqueVarNames };
   });
   // Subnet
   const subnetsWithUniqueVars = subnets.map(subnet => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('cidrBlock' in subnet && subnet.cidrBlock) uniqueVarNames.cidr_block = makeNameGloballyUnique(`${subnet.resourceName}_cidr_block`, usedVarNames);
-    if ('availabilityZone' in subnet && subnet.availabilityZone) uniqueVarNames.availability_zone = makeNameGloballyUnique(`${subnet.resourceName}_availability_zone`, usedVarNames);
-    if ('vpcId' in subnet && subnet.vpcId) uniqueVarNames.vpc_id = makeNameGloballyUnique(`${subnet.resourceName}_vpc_id`, usedVarNames);
+    if ('cidrBlock' in subnet && subnet.cidrBlock) uniqueVarNames.cidr_block = makeNameGloballyUnique(`${subnet.resourceName}_cidr_block`, new Set(importedVariableNames));
+    if ('availabilityZone' in subnet && subnet.availabilityZone) uniqueVarNames.availability_zone = makeNameGloballyUnique(`${subnet.resourceName}_availability_zone`, new Set(importedVariableNames));
+    if ('vpcId' in subnet && subnet.vpcId) uniqueVarNames.vpc_id = makeNameGloballyUnique(`${subnet.resourceName}_vpc_id`, new Set(importedVariableNames));
     return { ...subnet, uniqueVarNames };
   });
   // IGW
   const igwsWithUniqueVars = igws.map(igw => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('vpcId' in igw && igw.vpcId) uniqueVarNames.vpc_id = makeNameGloballyUnique(`${igw.resourceName}_vpc_id`, usedVarNames);
+    if ('vpcId' in igw && igw.vpcId) uniqueVarNames.vpc_id = makeNameGloballyUnique(`${igw.resourceName}_vpc_id`, new Set(importedVariableNames));
     return { ...igw, uniqueVarNames };
   });
   // RouteTable
   const routeTablesWithUniqueVars = routeTables.map(rt => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('vpcId' in rt && rt.vpcId) uniqueVarNames.vpc_id = makeNameGloballyUnique(`${rt.resourceName}_vpc_id`, usedVarNames);
+    if ('vpcId' in rt && rt.vpcId) uniqueVarNames.vpc_id = makeNameGloballyUnique(`${rt.resourceName}_vpc_id`, new Set(importedVariableNames));
     return { ...rt, uniqueVarNames };
   });
   // S3
   const s3WithUniqueVars = s3.map(bucket => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('bucket' in bucket && bucket.bucket) uniqueVarNames.bucket = makeNameGloballyUnique(`${bucket.resourceName}_bucket`, usedVarNames);
+    if ('bucket' in bucket && bucket.bucket) uniqueVarNames.bucket = makeNameGloballyUnique(`${bucket.resourceName}_bucket`, new Set(importedVariableNames));
     return { ...bucket, uniqueVarNames };
   });
   // ECSCluster
   const ecsClustersWithUniqueVars = ecsClusters.map(cluster => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('clusterArn' in cluster && cluster.clusterArn) uniqueVarNames.cluster_arn = makeNameGloballyUnique(`${cluster.resourceName}_cluster_arn`, usedVarNames);
+    if ('clusterArn' in cluster && cluster.clusterArn) uniqueVarNames.cluster_arn = makeNameGloballyUnique(`${cluster.resourceName}_cluster_arn`, new Set(importedVariableNames));
     return { ...cluster, uniqueVarNames };
   });
   // ECSService
   const ecsServicesWithUniqueVars = ecsServices.map(service => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('serviceArn' in service && service.serviceArn) uniqueVarNames.service_arn = makeNameGloballyUnique(`${service.resourceName}_service_arn`, usedVarNames);
-    if ('clusterArn' in service && service.clusterArn) uniqueVarNames.cluster_arn = makeNameGloballyUnique(`${service.resourceName}_cluster_arn`, usedVarNames);
+    if ('serviceArn' in service && service.serviceArn) uniqueVarNames.service_arn = makeNameGloballyUnique(`${service.resourceName}_service_arn`, new Set(importedVariableNames));
+    if ('clusterArn' in service && service.clusterArn) uniqueVarNames.cluster_arn = makeNameGloballyUnique(`${service.resourceName}_cluster_arn`, new Set(importedVariableNames));
     return { ...service, uniqueVarNames };
   });
   // ECSTaskDef
   const ecsTaskDefsWithUniqueVars = ecsTaskDefs.map(def => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('taskDefinitionArn' in def && def.taskDefinitionArn) uniqueVarNames.taskdef_arn = makeNameGloballyUnique(`${def.resourceName}_taskdef_arn`, usedVarNames);
-    if ('family' in def && def.family) uniqueVarNames.family = makeNameGloballyUnique(`${def.resourceName}_family`, usedVarNames);
+    if ('taskDefinitionArn' in def && def.taskDefinitionArn) uniqueVarNames.taskdef_arn = makeNameGloballyUnique(`${def.resourceName}_taskdef_arn`, new Set(importedVariableNames));
+    if ('family' in def && def.family) uniqueVarNames.family = makeNameGloballyUnique(`${def.resourceName}_family`, new Set(importedVariableNames));
     return { ...def, uniqueVarNames };
   });
   // ALB
   const albsWithUniqueVars = albs.map(alb => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('loadBalancerArn' in alb && alb.loadBalancerArn) uniqueVarNames.lb_arn = makeNameGloballyUnique(`${alb.resourceName}_lb_arn`, usedVarNames);
+    if ('loadBalancerArn' in alb && alb.loadBalancerArn) uniqueVarNames.lb_arn = makeNameGloballyUnique(`${alb.resourceName}_lb_arn`, new Set(importedVariableNames));
     return { ...alb, uniqueVarNames };
   });
   // ALBListener
   const albListenersWithUniqueVars = albListeners.map(listener => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('listenerArn' in listener && listener.listenerArn) uniqueVarNames.listener_arn = makeNameGloballyUnique(`${listener.resourceName}_listener_arn`, usedVarNames);
+    if ('listenerArn' in listener && listener.listenerArn) uniqueVarNames.listener_arn = makeNameGloballyUnique(`${listener.resourceName}_listener_arn`, new Set(importedVariableNames));
     return { ...listener, uniqueVarNames };
   });
   // ALBTargetGroup
   const albTargetGroupsWithUniqueVars = albTargetGroups.map(tg => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('targetGroupArn' in tg && tg.targetGroupArn) uniqueVarNames.tg_arn = makeNameGloballyUnique(`${tg.resourceName}_tg_arn`, usedVarNames);
+    if ('targetGroupArn' in tg && tg.targetGroupArn) uniqueVarNames.tg_arn = makeNameGloballyUnique(`${tg.resourceName}_tg_arn`, new Set(importedVariableNames));
     return { ...tg, uniqueVarNames };
   });
 

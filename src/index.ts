@@ -7,7 +7,6 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import ini from "ini";
-import { execSync } from "child_process";
 
 async function selectAwsProfile(): Promise<string> {
   const configPath = path.join(os.homedir(), ".aws/config");
