@@ -294,29 +294,29 @@ export async function generateVariablesTf(
   fs.writeFileSync("terraform/variables_albListener.tf", albListenerVarsRendered);
 
   // Main variables.tf (if needed)
-  const variablesTfTemplatePath = path.join(__dirname, "../templates/variables/variables.tf.ejs");
-  let allVariables: { name: string, default?: string }[] = [];
-  if (fs.existsSync(variablesTfTemplatePath)) {
-    const variablesTfTemplate = fs.readFileSync(variablesTfTemplatePath, "utf-8");
-    const variablesTfRendered = ejs.render(variablesTfTemplate, { ec2, s3, securityGroups, vpcs, subnets, igws, routeTables });
-    fs.writeFileSync("terraform/variables.tf", variablesTfRendered);
-    // Try to extract variable names from the template (or from data)
-    // For simplicity: if the template contains <% variables.forEach ... %>, pass the variables array
-    // Otherwise, collect manually (or leave empty)
-    // Here we assume variables are defined in variablesTfRendered as: variable "name" { ... default = "value" ... }
-    // If no variables found — do not generate tfvars
-    const varRegex = /variable\s+"([^"]+)"[^{]*{[^}]*default\s*=\s*"([^"]*)"/g;
-    let match;
-    while ((match = varRegex.exec(variablesTfRendered)) !== null) {
-      allVariables.push({ name: match[1], default: match[2] });
-    }
-  }
-  // If no variables found — do not generate tfvars
-  if (allVariables.length > 0) {
-    const uniqueVariables = filterDuplicateVariables(allVariables);
-    await generateTfvarsFile(uniqueVariables);
-  }
-  console.log(`Terraform variable files generated.`);
+  // const variablesTfTemplatePath = path.join(__dirname, "../templates/variables/variables.tf.ejs");
+  // let allVariables: { name: string, default?: string }[] = [];
+  // if (fs.existsSync(variablesTfTemplatePath)) {
+  //   const variablesTfTemplate = fs.readFileSync(variablesTfTemplatePath, "utf-8");
+  //   const variablesTfRendered = ejs.render(variablesTfTemplate, { ec2, s3, securityGroups, vpcs, subnets, igws, routeTables });
+  //   fs.writeFileSync("terraform/variables.tf", variablesTfRendered);
+  //   // Try to extract variable names from the template (or from data)
+  //   // For simplicity: if the template contains <% variables.forEach ... %>, pass the variables array
+  //   // Otherwise, collect manually (or leave empty)
+  //   // Here we assume variables are defined in variablesTfRendered as: variable "name" { ... default = "value" ... }
+  //   // If no variables found — do not generate tfvars
+  //   const varRegex = /variable\s+"([^"]+)"[^{]*{[^}]*default\s*=\s*"([^"]*)"/g;
+  //   let match;
+  //   while ((match = varRegex.exec(variablesTfRendered)) !== null) {
+  //     allVariables.push({ name: match[1], default: match[2] });
+  //   }
+  // }
+  // // If no variables found — do not generate tfvars
+  // if (allVariables.length > 0) {
+  //   const uniqueVariables = filterDuplicateVariables(allVariables);
+  //   await generateTfvarsFile(uniqueVariables);
+  // }
+  // console.log(`Terraform variable files generated.`);
 }
 
 // Generate outputs.tf from EJS template

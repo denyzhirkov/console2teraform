@@ -20,9 +20,9 @@ resource "aws_security_group" "<%= sg.resourceName %>" {
     cidr_blocks = [<%- rule.cidrBlocksHcl %>]
   }
 <% }) %>
-<% if (sg.tags) { %>  tags = {
-<% Object.entries(sg.tags).forEach(([k, v]) => { %>    <%= k %> = "<%= v %>"
-<% }) %>  }
+<% if (sg.tagsHcl) { %>  tags = {
+<%- sg.tagsHcl %>
+  }
 <% } %>}
 <% }) %>
 <% } %> 
