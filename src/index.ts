@@ -144,6 +144,14 @@ async function main() {
     const tfDir = path.join(__dirname, "../terraform");
     if (!fs.existsSync(tfDir)) {
       fs.mkdirSync(tfDir);
+    } else {
+      // Очистить все файлы в папке terraform
+      fs.readdirSync(tfDir).forEach(file => {
+        const filePath = path.join(tfDir, file);
+        if (fs.lstatSync(filePath).isFile()) {
+          fs.unlinkSync(filePath);
+        }
+      });
     }
 
     // Ask user if they want to run terraform import for all generated resources

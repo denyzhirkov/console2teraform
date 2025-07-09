@@ -192,9 +192,16 @@ variable "aws_profile" {
   // ECSTaskDef
   const ecsTaskDefsWithUniqueVars = ecsTaskDefs.map(def => {
     const uniqueVarNames: Record<string, string> = {};
-    if ('taskDefinitionArn' in def && def.taskDefinitionArn) uniqueVarNames.taskdef_arn = makeNameGloballyUnique(`${def.resourceName}_taskdef_arn`, new Set(importedVariableNames));
-    if ('family' in def && def.family) uniqueVarNames.family = makeNameGloballyUnique(`${def.resourceName}_family`, new Set(importedVariableNames));
-    return { ...def, uniqueVarNames };
+    // Получаем revision из ARN (последняя часть после ':')
+    const revision = def.taskDefinitionArn ? def.taskDefinitionArn.split(':').pop() : undefined;
+    const baseName = `${def.resourceName}${revision ? `_${revision}` : ''}`;
+    if ('taskDefinitionArn' in def && def.taskDefinitionArn) uniqueVarNames.taskdef_arn = makeNameGloballyUnique(`${baseName}_taskdef_arn`, new Set(importedVariableNames));
+    if ('family' in def && def.family) uniqueVarNames.family = makeNameGloballyUnique(`${baseName}_family`, new Set(importedVariableNames));
+    if ('cpu' in def && def.cpu) uniqueVarNames.cpu = makeNameGloballyUnique(`${baseName}_cpu`, new Set(importedVariableNames));
+    if ('memory' in def && def.memory) uniqueVarNames.memory = makeNameGloballyUnique(`${baseName}_memory`, new Set(importedVariableNames));
+    if ('networkMode' in def && def.networkMode) uniqueVarNames.network_mode = makeNameGloballyUnique(`${baseName}_network_mode`, new Set(importedVariableNames));
+    uniqueVarNames.tags = makeNameGloballyUnique(`${baseName}_tags`, new Set(importedVariableNames));
+    return { ...def, uniqueVarNames, revision };
   });
   // ALB
   const albsWithUniqueVars = albs.map(alb => {

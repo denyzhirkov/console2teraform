@@ -2,37 +2,39 @@
 <% if (ecsTaskDefs && ecsTaskDefs.length) { ecsTaskDefs.forEach(function(def) { %>
 <% if (def.uniqueVarNames.taskdef_arn) { %>
 variable "<%= def.uniqueVarNames.taskdef_arn %>" {
-  description = "Task Definition ARN for ECS TaskDef <%= def.resourceName %>"
+  description = "Task Definition ARN for ECS TaskDef <%= def.resourceName %> revision <%= def.revision %>"
   type        = string
   default     = "<%= def.taskDefinitionArn || '' %>"
 }
 <% } %>
 <% if (def.uniqueVarNames.family) { %>
 variable "<%= def.uniqueVarNames.family %>" {
-  description = "Family for ECS TaskDef <%= def.resourceName %>"
+  description = "Family for ECS TaskDef <%= def.resourceName %> revision <%= def.revision %>"
   type        = string
   default     = "<%= def.family || '' %>"
 }
 <% } %>
-variable "<%= normalize(def.resourceName) %>_tags" {
-  description = "Tags for ECS Task Definition <%= def.resourceName %>"
+<% if (def.uniqueVarNames.tags) { %>
+variable "<%= def.uniqueVarNames.tags %>" {
+  description = "Tags for ECS Task Definition <%= def.resourceName %> revision <%= def.revision %>"
   type        = map(string)
   default     = {
 <% Object.entries(def.tags || {}).forEach(([k, v]) => { %>    "<%= k.replace(/"/g, '\"') %>" = "<%= v %>"
 <% }) %>  }
 }
-<% if (def.cpu) { %>variable "<%= normalize(def.resourceName) %>_cpu" {
-  description = "CPU for ECS Task Definition <%= def.resourceName %>"
+<% } %>
+<% if (def.uniqueVarNames.cpu) { %>variable "<%= def.uniqueVarNames.cpu %>" {
+  description = "CPU for ECS Task Definition <%= def.resourceName %> revision <%= def.revision %>"
   type        = string
   default     = "<%= def.cpu %>"
 }
-<% } %><% if (def.memory) { %>variable "<%= normalize(def.resourceName) %>_memory" {
-  description = "Memory for ECS Task Definition <%= def.resourceName %>"
+<% } %><% if (def.uniqueVarNames.memory) { %>variable "<%= def.uniqueVarNames.memory %>" {
+  description = "Memory for ECS Task Definition <%= def.resourceName %> revision <%= def.revision %>"
   type        = string
   default     = "<%= def.memory %>"
 }
-<% } %><% if (def.networkMode) { %>variable "<%= normalize(def.resourceName) %>_network_mode" {
-  description = "Network mode for ECS Task Definition <%= def.resourceName %>"
+<% } %><% if (def.uniqueVarNames.network_mode) { %>variable "<%= def.uniqueVarNames.network_mode %>" {
+  description = "Network mode for ECS Task Definition <%= def.resourceName %> revision <%= def.revision %>"
   type        = string
   default     = "<%= def.networkMode %>"
 }
